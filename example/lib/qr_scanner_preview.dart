@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -214,6 +215,7 @@ class DefaultQRFinder extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderColor = Colors.white;
     final qrFinderRectDimension = MediaQuery.of(context).size.width - apertureEdge * 2;
+    final x = max(0.0, qrFinderRectDimension - viewFinderEdge);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -241,10 +243,7 @@ class DefaultQRFinder extends StatelessWidget {
         // top-right border
         Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.only(
-            left: qrFinderRectDimension - viewFinderEdge,
-            bottom: qrFinderRectDimension - viewFinderEdge,
-          ),
+          padding: EdgeInsets.only(left: x, bottom: x),
           child: Container(
             decoration: BoxDecoration(
               border: Border(
@@ -259,10 +258,7 @@ class DefaultQRFinder extends StatelessWidget {
         // top-left border
         Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.only(
-            right: qrFinderRectDimension - viewFinderEdge,
-            bottom: qrFinderRectDimension - viewFinderEdge,
-          ),
+          padding: EdgeInsets.only(right: x, bottom: x),
           child: Container(
             decoration: BoxDecoration(
               border: Border(
@@ -277,10 +273,7 @@ class DefaultQRFinder extends StatelessWidget {
         // bottom-right border
         Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.only(
-            left: qrFinderRectDimension - viewFinderEdge,
-            top: qrFinderRectDimension - viewFinderEdge,
-          ),
+          padding: EdgeInsets.only(left: x, top: x),
           child: Container(
             decoration: BoxDecoration(
               border: Border(
@@ -295,10 +288,7 @@ class DefaultQRFinder extends StatelessWidget {
         // bottom-left border
         Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.only(
-            right: qrFinderRectDimension - viewFinderEdge,
-            top: qrFinderRectDimension - viewFinderEdge,
-          ),
+          padding: EdgeInsets.only(right: x, top: x),
           child: Container(
             decoration: BoxDecoration(
               border: Border(
