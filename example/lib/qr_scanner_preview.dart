@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:example/copy/camera_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
@@ -31,8 +33,11 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
   bool isInitCameraDone = false;
   bool startStream = true;
   late List<CameraDescription> cameras;
+  final BarcodeScanner barcodeScanner = BarcodeScanner();
+  final List<BarcodeX> foundBarcodes = [];
 
   Future<void> _initializeCamera() async {
+    foundBarcodes.clear();
     try {
       cameras = await availableCameras();
       final cameraController = CameraController(
@@ -63,6 +68,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
       await _controller?.stopImageStream();
       await _controller?.dispose();
     }
+    barcodeScanner.close();
     setState(() {
       isInitCameraDone = false;
       _controller = null;
@@ -93,40 +99,65 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
     super.dispose();
   }
 
-  Future _processCameraImage(CameraImage image) async {
+  Future<void> _processCameraImage(CameraImage image) async {
     try {
       final allBytes = WriteBuffer();
       for (final plane in image.planes) {
         allBytes.putUint8List(plane.bytes);
       }
-      final bytes = allBytes.done().buffer.asUint8List();
-
+      var inputImageFormat = _getInputImageFormat(image.format.group);
+      var bytes = allBytes.done().buffer.asUint8List();
+      if (Platform.isAndroid && InputImageFormat.yuv420 == inputImageFormat) {
+        inputImageFormat = InputImageFormat.nv21;
+        bytes = image.getNv21Uint8List();
+      }
       final imageSize = Size(image.width.toDouble(), image.height.toDouble());
-
       final camera = cameras[0];
       final imageRotation =
           InputImageRotationValue.fromRawValue(camera.sensorOrientation) ?? InputImageRotation.rotation0deg;
-
-      final inputImageFormat = InputImageFormatValue.fromRawValue(image.format.raw as int) ?? InputImageFormat.bgra8888;
-
       final inputImageData = InputImageMetadata(
         size: imageSize,
         rotation: imageRotation,
         format: inputImageFormat,
         bytesPerRow: image.planes[0].bytesPerRow,
       );
-
       final inputImage = InputImage.fromBytes(
         bytes: bytes,
         metadata: inputImageData,
       );
-      widget.onImage(inputImage);
-    } on Exception catch (e, s) {
-      print('Unexpected error in processing camera image $e $s');
-      return e;
+      await _processImageForBarcode(inputImage);
     } catch (e, s) {
-      print('Unexpected error in processing camera image $e $s');
+      debugPrintStack(stackTrace: s, label: 'Unexpected error in processing camera image: $e');
     }
+  }
+
+  InputImageFormat _getInputImageFormat(ImageFormatGroup formatGroup) {
+    switch (formatGroup) {
+      case ImageFormatGroup.bgra8888:
+        return InputImageFormat.bgra8888;
+      case ImageFormatGroup.yuv420:
+        return InputImageFormat.yuv420;
+      case ImageFormatGroup.nv21:
+        return InputImageFormat.nv21;
+      default:
+        return InputImageFormat.nv21;
+    }
+  }
+
+  Future<void> _processImageForBarcode(InputImage image) async {
+    final res = await barcodeScanner.processImage(image);
+
+    if (res.isNotEmpty) {
+      setState(() {
+        if (foundBarcodes.length > 10) foundBarcodes.clear();
+        foundBarcodes.addAll(res.map((e) => BarcodeX(barcode: e, image: image)));
+      });
+    } else {
+      setState(() {
+        foundBarcodes.clear();
+      });
+    }
+    barcodeScanner.close();
   }
 
   @override
@@ -135,7 +166,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
       fit: StackFit.expand,
       children: [
         _buildCamera(context),
-        widget.foreground ?? const AnimatedQRFinder(),
+        // widget.foreground ?? AnimatedQRFinder(),
         Column(
           children: [
             SizedBox(
@@ -165,6 +196,18 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
             ),
           ],
         ),
+        Container(
+          color: Colors.yellowAccent.shade100.withOpacity(0.1),
+          child: Stack(
+            children: [
+              ...foundBarcodes.map((barcode) => BarcodeRectangle(
+                    cornerPoints: barcode.barcode.cornerPoints,
+                    boundingBox: barcode.barcode.boundingBox,
+                    imageSize: barcode.image.metadata!.size!,
+                  )),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -193,4 +236,11 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
       },
     );
   }
+}
+
+class BarcodeX {
+  final Barcode barcode;
+  final InputImage image;
+
+  BarcodeX({required this.barcode, required this.image});
 }
