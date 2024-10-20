@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:image/image.dart' as imglib;
 
-extension Nv21Converter on CameraImage {
+extension CameraImageX on CameraImage {
   Uint8List getNv21Uint8List() {
     final width = this.width;
     final height = this.height;
@@ -49,5 +53,57 @@ extension Nv21Converter on CameraImage {
       }
     }
     return Uint8List.fromList(nv21);
+  }
+
+  Uint8List? get _imageBytes {
+    final allBytes = WriteBuffer();
+    try {
+      for (final plane in planes) {
+        allBytes.putUint8List(plane.bytes);
+      }
+      var imageBytes = allBytes.done().buffer.asUint8List();
+      return imageBytes;
+    } catch (e) {
+      debugPrint('CameraImageX.bytes.error: $e');
+    }
+    return null;
+  }
+
+  Uint8List? get bytes {
+    if (Platform.isAndroid && InputImageFormat.yuv420 == inputImageFormat) {
+      return getNv21Uint8List().compressImage();
+    } else {
+      return _imageBytes?.compressImage();
+    }
+  }
+
+  InputImageFormat get inputImageFormat {
+    switch (format.group) {
+      case ImageFormatGroup.bgra8888:
+        return InputImageFormat.bgra8888;
+      case ImageFormatGroup.yuv420:
+        return InputImageFormat.yuv420;
+      case ImageFormatGroup.nv21:
+        return InputImageFormat.nv21;
+      default:
+        return InputImageFormat.nv21;
+    }
+  }
+}
+
+extension ImageBytesX on Uint8List {
+  Uint8List compressImage([int quality = 50]) {
+    try {
+      final image = imglib.decodeImage(this);
+      if (image == null) {
+        debugPrint('CameraImageX.compressImage.error: failed to decodeImage');
+        return this;
+      } else {
+        return Uint8List.fromList(imglib.encodeJpg(image, quality: quality));
+      }
+    } catch (e) {
+      debugPrint('CameraImageX.compressImage.error: $e');
+      return this;
+    }
   }
 }

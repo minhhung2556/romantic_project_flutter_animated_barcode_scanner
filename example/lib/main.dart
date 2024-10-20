@@ -22,50 +22,18 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class Home extends StatefulWidget {
+class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  final previewKey = GlobalKey();
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    debugPrint('_HomeState.build.screenSize: $screenSize');
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          ScannerPreview(
-            key: previewKey,
-            onImage: (e) {},
-            delayForNextImage: 1000,
-          ),
+          ScannerPreview(),
         ],
       ),
     );
-  }
-}
-
-extension GlobalKeyExtension on GlobalKey {
-  Rect? get globalPaintBounds {
-    final renderObject = currentContext?.findRenderObject();
-    final translation = renderObject?.getTransformTo(null).getTranslation();
-    if (translation != null && renderObject?.paintBounds != null) {
-      final offset = Offset(translation.x, translation.y);
-      return renderObject!.paintBounds.shift(offset);
-    } else {
-      return null;
-    }
   }
 }
