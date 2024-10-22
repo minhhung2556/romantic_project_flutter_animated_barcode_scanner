@@ -2,10 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
-
-import 'barcode_processor/index.dart';
 
 /// [ScannerPreview] Preview widget for QR Scanner.
 class ScannerPreview extends StatefulWidget {
@@ -20,17 +17,20 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
   late BarcodeProcessor barcodeProcessor;
 
   Future<List<CameraDescription>?> _initializeCamera() async {
+    debugPrint('_ScannerPreviewState._initializeCamera');
     try {
       final cameras = await availableCameras();
-      final cameraController = CameraController(
+      _controller = CameraController(
         cameras.first,
         ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
-      _controller = cameraController;
       await _controller.initialize();
-      barcodeProcessor = BarcodeProcessor(cameraDescription: cameras.first);
+      barcodeProcessor = BarcodeProcessor(
+        cameraController: _controller,
+        isDebug: true,
+      );
       _controller.startImageStream((image) {
         barcodeProcessor.processImage(image);
       });
@@ -55,15 +55,35 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _initializeCamera(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return _buildCamera(context);
-          } else {
-            return SizedBox.shrink();
-          }
-        });
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        OrientationBuilder(
+          builder: (context, orientation) {
+            return FutureBuilder(
+                key: GlobalKey(), // init camera whenever orientation changed.
+                future: _initializeCamera(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final size =_controller.value.previewSize!;
+                    return Container(
+                      alignment: Alignment.center,
+                      width: size.width,
+                      height: size.height,
+                      child: CameraPreview(
+                        _controller,
+                        child: _buildBarcodes(context),
+                      ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                });
+          },
+        ),
+        BasicQRFinder(),
+      ],
+    );
   }
 
   Widget _buildBarcodes(BuildContext context) {
@@ -75,8 +95,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
               children: [
                 ...snapshot.data!.map((barcode) {
                   return BarcodeRectangle(
-                    cornerPoints: barcode.barcode.cornerPoints,
-                    boundingBox: barcode.barcode.boundingBox,
+                    cornerPoints: barcode.barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false),
                     imageSize: barcode.imageSize,
                   );
                 }),
@@ -86,44 +105,5 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
             return SizedBox.shrink();
           }
         });
-  }
-
-  Widget _buildCamera(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final deviceOrientation = _controller.value.deviceOrientation;
-        final originalPreviewSize = _controller.value.previewSize!;
-        debugPrint(
-            '_ScannerPreviewState._buildBarcodes: deviceOrientation=$deviceOrientation, originalPreviewSize=$originalPreviewSize');
-        late double rotationAngle;
-        switch (deviceOrientation) {
-          case DeviceOrientation.portraitDown:
-            rotationAngle = 180;
-            break;
-          case DeviceOrientation.landscapeLeft:
-            rotationAngle = -90;
-            break;
-          case DeviceOrientation.landscapeRight:
-            rotationAngle = 90;
-            break;
-          case DeviceOrientation.portraitUp:
-          default:
-            rotationAngle = 0;
-            break;
-        }
-        return Transform.rotate(
-          angle: rotationAngle,
-          child: Container(
-            alignment: Alignment.center,
-            width: originalPreviewSize.width,
-            height: originalPreviewSize.height,
-            child: CameraPreview(
-              _controller,
-              child: _buildBarcodes(context),
-            ),
-          ),
-        );
-      },
-    );
   }
 }
