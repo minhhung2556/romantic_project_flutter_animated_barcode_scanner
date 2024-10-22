@@ -87,15 +87,19 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
                     return Stack(
                       alignment: Alignment.center,
                       children: [
+                        // [CameraPreview] must be in a parent widget that has size.
                         Container(
                           color: Colors.black,
                           child: SizedBox.square(
                             dimension: screenSize.shortestSide,
+                            // align [CameraPreview] in center.
                             child: Center(
-                                child: CameraPreview(
-                              _controller,
-                              child: _buildBarcodes(context, snapshot.data!, Colors.green),
-                            )),
+                              child: CameraPreview(
+                                _controller,
+                                // Barcode cornerPoints is related to image size which is in [CameraPreview] boundaries, so they must be placed in child of [CameraPreview].
+                                child: _buildBarcodes(context, snapshot.data!, Colors.green),
+                              ),
+                            ),
                           ),
                         ),
                         BasicQRFinder(),
