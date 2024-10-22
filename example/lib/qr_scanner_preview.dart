@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
 
 /// [ScannerPreview] Preview widget for QR Scanner.
@@ -79,20 +78,30 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
               debugPrint('_ScannerPreviewState.build: adaptedPreviewSize=$adaptedPreviewSize');
               debugPrint('_ScannerPreviewState.build: screenSize=$screenSize');
 
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    color: Colors.black,
-                    child: SizedBox.square(
-                      dimension: screenSize.shortestSide,
-                      child: Center(child: CameraPreview(_controller)),
-                    ),
-                  ),
-                  BasicQRFinder(),
-                  // _buildBarcodes(context),
-                ],
-              );
+              return StreamBuilder<List<BarcodeX>>(
+                  stream: barcodeProcessor.latestBarcodes.stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData != true) {
+                      return SizedBox.shrink();
+                    }
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          color: Colors.black,
+                          child: SizedBox.square(
+                            dimension: screenSize.shortestSide,
+                            child: Center(
+                                child: CameraPreview(
+                              _controller,
+                              child: _buildBarcodes(context, snapshot.data!, Colors.green),
+                            )),
+                          ),
+                        ),
+                        BasicQRFinder(),
+                      ],
+                    );
+                  });
             } else {
               return SizedBox.shrink();
             }
@@ -100,35 +109,20 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
     });
   }
 
-  Widget _buildBarcodes(BuildContext context) {
-    return StreamBuilder<List<BarcodeX>>(
-        stream: barcodeProcessor.latestBarcodes.stream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Stack(
-              children: [
-                ...snapshot.data!.map((barcode) {
-                  final originalImageSize = barcode.imageSize;
-                  final originalCornerPoints = barcode.barcode.cornerPoints
-                      .map((e) => Offset(e.x.toDouble(), e.y.toDouble()))
-                      .toList(growable: false);
-                  late Size adaptedImageSize;
-                  if (_controller.value.deviceOrientation == DeviceOrientation.landscapeLeft ||
-                      _controller.value.deviceOrientation == DeviceOrientation.landscapeRight) {
-                    adaptedImageSize = Size(originalImageSize.height, originalImageSize.width);
-                  } else {
-                    adaptedImageSize = originalImageSize;
-                  }
-                  return BarcodeRectangle(
-                    cornerPoints: originalCornerPoints,
-                    imageSize: adaptedImageSize,
-                  );
-                }),
-              ],
-            );
-          } else {
-            return SizedBox.shrink();
-          }
-        });
+  Widget _buildBarcodes(BuildContext context, List<BarcodeX> barcodes, Color color) {
+    return Stack(
+      children: [
+        ...barcodes.map((barcode) {
+          final originalImageSize = barcode.imageSize;
+          final originalCornerPoints =
+              barcode.barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false);
+          return BarcodeRectangle(
+            cornerPoints: originalCornerPoints,
+            imageSize: originalImageSize,
+            color: color,
+          );
+        }),
+      ],
+    );
   }
 }
