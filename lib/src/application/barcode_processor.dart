@@ -18,12 +18,10 @@ class BarcodeProcessor {
   Future<List<BarcodeX>>? _processing;
   CameraImage? _processingImage;
   final int maxImageQueue;
-  final bool isDebug;
   final CameraController cameraController;
 
   BarcodeProcessor({
     this.maxImageQueue = 1,
-    this.isDebug = false,
     List<BarcodeFormat>? barcodeFormats,
     required this.cameraController,
   }) {
@@ -67,10 +65,6 @@ class BarcodeProcessor {
 
   Future<List<BarcodeX>> _processImage(CameraImage image) async {
     try {
-      if (isDebug) {
-        debugPrint('BarcodeProcessor._processImage: imageSize=${image.size}');
-      }
-
       final inputImage = InputImage.fromBytes(
         bytes: image.imageBytes!,
         metadata: InputImageMetadata(
@@ -90,18 +84,8 @@ class BarcodeProcessor {
 
   Future<List<BarcodeX>> _processImageForBarcode(InputImage image) async {
     try {
-      final sensorOrientation = cameraController.description.sensorOrientation;
       final deviceOrientation = cameraController.value.deviceOrientation;
       final imageSize = image.metadata!.size;
-      final imageRotation = image.metadata!.rotation;
-
-      if (isDebug)
-        debugPrint('[${DateTime.now()}]BarcodeProcessor._processImageForBarcode: ${[
-          'sensorOrientation=$sensorOrientation',
-          'imageSize=$imageSize',
-          'imageRotation=$imageRotation',
-          'deviceOrientation=$deviceOrientation',
-        ].join(', ')}');
       final res = await barcodeScanner.processImage(image);
       await barcodeScanner.close();
       if (res.isNotEmpty) {
