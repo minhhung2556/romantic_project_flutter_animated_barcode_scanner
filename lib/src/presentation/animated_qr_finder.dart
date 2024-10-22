@@ -2,16 +2,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-/// [AnimatedQRFinder] : default design for QR scanner.
+/// [BasicQRFinder] : basic design for QR scanner.
 /// [apertureEdge] : margin of [CameraPreview] to the screen.
 /// [viewFinderEdge] : center of camera let the users places to the QR code picture, it is the length of white border lines.
 /// [child] : is front of this, and inside the  finder rectangle.
-class AnimatedQRFinder extends StatelessWidget {
+class BasicQRFinder extends StatelessWidget {
   final double apertureEdge;
   final double viewFinderEdge;
   final Widget? child;
 
-  const AnimatedQRFinder({
+  const BasicQRFinder({
     super.key,
     this.apertureEdge = 32.0,
     this.viewFinderEdge = 48.0,
@@ -21,7 +21,7 @@ class AnimatedQRFinder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderColor = Colors.white;
-    final qrFinderRectDimension = MediaQuery.of(context).size.width - apertureEdge * 2;
+    final qrFinderRectDimension = MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     final x = max(0.0, qrFinderRectDimension - viewFinderEdge);
     return Stack(
       fit: StackFit.expand,
