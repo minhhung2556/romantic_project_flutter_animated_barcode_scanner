@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
 
 /// [ScannerPreview] Preview widget for QR Scanner.
@@ -15,10 +16,14 @@ class ScannerPreview extends StatefulWidget {
 class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
   late CameraController _controller;
   late BarcodeProcessor barcodeProcessor;
+  bool isInitializedCamera = false;
 
   Future<List<CameraDescription>?> _initializeCamera() async {
     debugPrint('_ScannerPreviewState._initializeCamera');
     try {
+      if (isInitializedCamera) {
+        await _disposeCamera();
+      }
       final cameras = await availableCameras();
       _controller = CameraController(
         cameras.first,
@@ -34,6 +39,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
       _controller.startImageStream((image) {
         barcodeProcessor.processImage(image);
       });
+      isInitializedCamera = true;
       return cameras;
     } catch (e) {
       debugPrint('_ScannerPreviewState._initializeCamera.error: $e');
@@ -45,6 +51,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
     await _controller.stopImageStream();
     await _controller.dispose();
     await barcodeProcessor.dispose();
+    isInitializedCamera = false;
   }
 
   @override
@@ -55,35 +62,42 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        OrientationBuilder(
-          builder: (context, orientation) {
-            return FutureBuilder(
-                key: GlobalKey(), // init camera whenever orientation changed.
-                future: _initializeCamera(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final size =_controller.value.previewSize!;
-                    return Container(
-                      alignment: Alignment.center,
-                      width: size.width,
-                      height: size.height,
-                      child: CameraPreview(
-                        _controller,
-                        child: _buildBarcodes(context),
-                      ),
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                });
-          },
-        ),
-        BasicQRFinder(),
-      ],
-    );
+    return OrientationBuilder(builder: (context, orientation) {
+      return FutureBuilder(
+          key: GlobalKey(), // init camera whenever orientation changed.
+          future: _initializeCamera(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final screenSize = MediaQuery.sizeOf(context);
+
+              final originalPreviewSize = _controller.value.previewSize!;
+              debugPrint('_ScannerPreviewState.build: originalPreviewSize=$originalPreviewSize');
+              // preview must be landscape
+              final Size adaptedPreviewSize = originalPreviewSize.aspectRatio < 1
+                  ? Size(originalPreviewSize.longestSide, originalPreviewSize.shortestSide)
+                  : originalPreviewSize;
+              debugPrint('_ScannerPreviewState.build: adaptedPreviewSize=$adaptedPreviewSize');
+              debugPrint('_ScannerPreviewState.build: screenSize=$screenSize');
+
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    color: Colors.black,
+                    child: SizedBox.square(
+                      dimension: screenSize.shortestSide,
+                      child: Center(child: CameraPreview(_controller)),
+                    ),
+                  ),
+                  BasicQRFinder(),
+                  // _buildBarcodes(context),
+                ],
+              );
+            } else {
+              return SizedBox.shrink();
+            }
+          });
+    });
   }
 
   Widget _buildBarcodes(BuildContext context) {
@@ -94,9 +108,20 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
             return Stack(
               children: [
                 ...snapshot.data!.map((barcode) {
+                  final originalImageSize = barcode.imageSize;
+                  final originalCornerPoints = barcode.barcode.cornerPoints
+                      .map((e) => Offset(e.x.toDouble(), e.y.toDouble()))
+                      .toList(growable: false);
+                  late Size adaptedImageSize;
+                  if (_controller.value.deviceOrientation == DeviceOrientation.landscapeLeft ||
+                      _controller.value.deviceOrientation == DeviceOrientation.landscapeRight) {
+                    adaptedImageSize = Size(originalImageSize.height, originalImageSize.width);
+                  } else {
+                    adaptedImageSize = originalImageSize;
+                  }
                   return BarcodeRectangle(
-                    cornerPoints: barcode.barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false),
-                    imageSize: barcode.imageSize,
+                    cornerPoints: originalCornerPoints,
+                    imageSize: adaptedImageSize,
                   );
                 }),
               ],
