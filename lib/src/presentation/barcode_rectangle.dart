@@ -18,9 +18,8 @@ class BarcodeRectangle extends StatefulWidget {
 class _BarcodeRectangleState extends State<BarcodeRectangle> {
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
     return CustomPaint(
-      size: screenSize,
+      size: widget.imageSize,
       painter: BarcodePainter(
         cornerPoints: widget.cornerPoints,
         imageSize: widget.imageSize,
