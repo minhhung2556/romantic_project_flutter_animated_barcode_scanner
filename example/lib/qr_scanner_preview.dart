@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,6 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
       await _controller.initialize();
       barcodeProcessor = BarcodeProcessor(
         cameraController: _controller,
-        isDebug: true,
       );
       _controller.startImageStream((image) {
         barcodeProcessor.processImage(image);
@@ -94,15 +94,21 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
                             dimension: screenSize.shortestSide,
                             // align [CameraPreview] in center.
                             child: Center(
-                              child: CameraPreview(
-                                _controller,
-                                // Barcode cornerPoints is related to image size which is in [CameraPreview] boundaries, so they must be placed in child of [CameraPreview].
-                                child: _buildBarcodes(context, snapshot.data!, Colors.green),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  CameraPreview(
+                                    _controller,
+                                    // Barcode cornerPoints is related to image size which is in [CameraPreview] boundaries, so they must be placed in child of [CameraPreview].
+                                    child: _buildBarcodes(context, snapshot.data!, Colors.green),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                         BasicQRFinder(),
+
                       ],
                     );
                   });
@@ -120,6 +126,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
           final originalImageSize = barcode.imageSize;
           final originalCornerPoints =
               barcode.barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false);
+
           return BarcodeRectangle(
             cornerPoints: originalCornerPoints,
             imageSize: originalImageSize,
