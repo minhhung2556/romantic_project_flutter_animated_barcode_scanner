@@ -4,11 +4,14 @@ class BarcodeRectangle extends StatefulWidget {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
+  final double strokeWidth;
 
-  BarcodeRectangle({
+  const BarcodeRectangle({
+    super.key,
     required this.cornerPoints,
     required this.imageSize,
     required this.color,
+    required this.strokeWidth,
   });
 
   @override
@@ -24,6 +27,7 @@ class _BarcodeRectangleState extends State<BarcodeRectangle> {
         cornerPoints: widget.cornerPoints,
         imageSize: widget.imageSize,
         color: widget.color,
+        strokeWidth: widget.strokeWidth,
       ),
     );
   }
@@ -33,21 +37,23 @@ class BarcodePainter extends CustomPainter {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
+  final double strokeWidth;
 
   BarcodePainter({
     required this.imageSize,
     required this.cornerPoints,
     required this.color,
+    required this.strokeWidth,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     //QR rect
-    double scaleX = size.width / imageSize.width;
-    double scaleY = size.height / imageSize.height;
+    final scaleX = size.width / imageSize.width;
+    final scaleY = size.height / imageSize.height;
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 3
+      ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
     final path = Path()
       ..moveTo(cornerPoints[0].dx * scaleX, cornerPoints[0].dy * scaleY)

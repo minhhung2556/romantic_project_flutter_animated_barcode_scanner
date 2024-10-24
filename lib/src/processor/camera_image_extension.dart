@@ -61,7 +61,7 @@ extension CameraImageX on CameraImage {
       for (final plane in planes) {
         allBytes.putUint8List(plane.bytes);
       }
-      var imageBytes = allBytes.done().buffer.asUint8List();
+      final imageBytes = allBytes.done().buffer.asUint8List();
       return imageBytes;
     } catch (e) {
       debugPrint('CameraImageX.bytes.error: $e');
@@ -82,9 +82,7 @@ extension CameraImageX on CameraImage {
       case ImageFormatGroup.bgra8888:
         return InputImageFormat.bgra8888;
       case ImageFormatGroup.yuv420:
-        return InputImageFormat.yuv420;
       case ImageFormatGroup.nv21:
-        return InputImageFormat.nv21;
       default:
         return InputImageFormat.nv21;
     }

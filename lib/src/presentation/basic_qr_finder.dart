@@ -20,7 +20,7 @@ class BasicQRFinder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = Colors.white;
+    const borderColor = Colors.white;
     final qrFinderRectDimension = MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     final x = max(0.0, qrFinderRectDimension - viewFinderEdge);
     return Stack(
@@ -52,7 +52,7 @@ class BasicQRFinder extends StatelessWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.only(left: x, bottom: x),
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(color: borderColor, width: 2),
                 right: BorderSide(color: borderColor, width: 2),
@@ -67,7 +67,7 @@ class BasicQRFinder extends StatelessWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.only(right: x, bottom: x),
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(color: borderColor, width: 2),
                 left: BorderSide(color: borderColor, width: 2),
@@ -82,7 +82,7 @@ class BasicQRFinder extends StatelessWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.only(left: x, top: x),
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 bottom: BorderSide(color: borderColor, width: 2),
                 right: BorderSide(color: borderColor, width: 2),
@@ -97,7 +97,7 @@ class BasicQRFinder extends StatelessWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.only(right: x, top: x),
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 bottom: BorderSide(color: borderColor, width: 2),
                 left: BorderSide(color: borderColor, width: 2),

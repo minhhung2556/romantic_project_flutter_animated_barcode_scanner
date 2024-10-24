@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animated_qr_scanner/src/domain/index.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
-import 'index.dart';
+import '../index.dart';
 
 class BarcodeProcessor {
   late BarcodeScanner barcodeScanner;
@@ -19,11 +18,15 @@ class BarcodeProcessor {
   CameraImage? _processingImage;
   final int maxImageQueue;
   final CameraController cameraController;
+  final OnBarcodesFoundCallback onBarcodesFound;
+  final OnFailedToDoSomething? onFailedToProcessBarcode;
 
   BarcodeProcessor({
     this.maxImageQueue = 1,
     List<BarcodeFormat>? barcodeFormats,
     required this.cameraController,
+    required this.onBarcodesFound,
+    this.onFailedToProcessBarcode,
   }) {
     barcodeScanner = barcodeFormats == null ? BarcodeScanner() : BarcodeScanner(formats: barcodeFormats);
   }
@@ -31,6 +34,7 @@ class BarcodeProcessor {
   bool get _shouldProcess => _processingImage == null && _processing == null && _waitingImageQueue.isNotEmpty;
 
   void onProcessingCompleted(List<BarcodeX> barcodes) {
+    onBarcodesFound(barcodes);
     latestBarcodes.add(barcodes);
     _waitingImageQueue.remove(_processingImage);
     _processingImage = null;
@@ -53,7 +57,7 @@ class BarcodeProcessor {
     _processingImage = null;
     _processing = null;
     _waitingImageQueue.clear();
-    latestBarcodes.close();
+    await latestBarcodes.close();
   }
 
   void processImage(CameraImage image) {
@@ -78,18 +82,20 @@ class BarcodeProcessor {
       return await _processImageForBarcode(inputImage);
     } catch (e, s) {
       debugPrintStack(stackTrace: s, label: 'BarcodeProcessor._processImage.error: $e');
+      onFailedToProcessBarcode?.call(e, s);
     }
     return [];
   }
 
   Future<List<BarcodeX>> _processImageForBarcode(InputImage image) async {
     try {
-      final deviceOrientation = cameraController.value.deviceOrientation;
-      final imageSize = image.metadata!.size;
       final res = await barcodeScanner.processImage(image);
       await barcodeScanner.close();
+      debugPrint('BarcodeProcessor._processImageForBarcode.found: ${res.length} barcodes.');
       if (res.isNotEmpty) {
         late Size adaptedImageSize;
+        final deviceOrientation = cameraController.value.deviceOrientation;
+        final imageSize = image.metadata!.size;
         if (deviceOrientation == DeviceOrientation.portraitUp || deviceOrientation == DeviceOrientation.portraitDown) {
           adaptedImageSize = Size(imageSize.height, imageSize.width);
         } else {
@@ -99,7 +105,8 @@ class BarcodeProcessor {
       }
     } catch (e, s) {
       debugPrintStack(stackTrace: s, label: 'BarcodeProcessor._processImageForBarcode.error: $e');
+      onFailedToProcessBarcode?.call(e, s);
     }
-    return List.empty(growable: false);
+    return List.empty();
   }
 }

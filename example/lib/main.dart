@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'qr_scanner_preview.dart';
+import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +39,11 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         title: Text('Romantic Project'),
       ),
-      body: ScannerPreview(),
+      body: ScannerPreview(
+        onBarcodesFound: (barcodes) {
+          debugPrint('Home.build: $barcodes');
+        },
+      ),
     );
   }
 }
