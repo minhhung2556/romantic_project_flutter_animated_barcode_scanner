@@ -31,6 +31,7 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
   late CameraController _controller;
   late BarcodeProcessor barcodeProcessor;
   bool isInitializedCamera = false;
+  List<BarcodeX> barcodes = [];
 
   Future<List<CameraDescription>?> _initializeCamera() async {
     debugPrint('_ScannerPreviewState._initializeCamera');
@@ -50,7 +51,10 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
         cameraController: _controller,
         onBarcodesFound: (barcodes) {
           if (mounted) {
-            widget.onBarcodesFound(barcodes);
+            setState(() {
+              this.barcodes = barcodes;
+              widget.onBarcodesFound(barcodes);
+            });
           }
         },
         barcodeFormats: [BarcodeFormat.qrCode],
@@ -97,49 +101,30 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
           future: _initializeCamera(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              final screenSize = MediaQuery.sizeOf(context);
-
-              final originalPreviewSize = _controller.value.previewSize!;
-              debugPrint('_ScannerPreviewState.build: originalPreviewSize=$originalPreviewSize');
-              // preview must be landscape
-              final adaptedPreviewSize = originalPreviewSize.aspectRatio < 1
-                  ? Size(originalPreviewSize.longestSide, originalPreviewSize.shortestSide)
-                  : originalPreviewSize;
-              debugPrint('_ScannerPreviewState.build: adaptedPreviewSize=$adaptedPreviewSize');
-              debugPrint('_ScannerPreviewState.build: screenSize=$screenSize');
-
-              return StreamBuilder<List<BarcodeX>>(
-                stream: barcodeProcessor.latestBarcodes.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData != true) {
-                    return const SizedBox.shrink();
-                  }
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      final size = Size(constraints.maxWidth, constraints.maxHeight);
-                      return Stack(
-                        children: [
-                          SizedBox(
-                            width: constraints.maxWidth,
-                            height: constraints.maxHeight,
-                            child: Transform.scale(
-                              scale: (size.aspectRatio * _controller.value.aspectRatio) < 1
-                                  ? 1 / (size.aspectRatio * _controller.value.aspectRatio)
-                                  : size.aspectRatio * _controller.value.aspectRatio,
-                              alignment: FractionalOffset.center,
-                              child: Center(
-                                child: CameraPreview(
-                                  _controller,
-                                  // Barcode cornerPoints is related to image size which is in [CameraPreview] boundaries, so they must be placed in child of [CameraPreview].
-                                  child: _buildBarcodes(context, snapshot.data!),
-                                ),
-                              ),
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final size = Size(constraints.maxWidth, constraints.maxHeight);
+                  return Stack(
+                    children: [
+                      SizedBox(
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        child: Transform.scale(
+                          scale: (size.aspectRatio * _controller.value.aspectRatio) < 1
+                              ? 1 / (size.aspectRatio * _controller.value.aspectRatio)
+                              : size.aspectRatio * _controller.value.aspectRatio,
+                          alignment: FractionalOffset.center,
+                          child: Center(
+                            child: CameraPreview(
+                              _controller,
+                              // Barcode cornerPoints is related to image size which is in [CameraPreview] boundaries, so they must be placed in child of [CameraPreview].
+                              child: _buildBarcodes(context, barcodes),
                             ),
                           ),
-                          if (widget.foreground != null) widget.foreground!,
-                        ],
-                      );
-                    },
+                        ),
+                      ),
+                      if (widget.foreground != null) widget.foreground!,
+                    ],
                   );
                 },
               );
@@ -156,13 +141,9 @@ class _ScannerPreviewState extends State<ScannerPreview> with RouteAware {
     return Stack(
       children: [
         ...barcodes.map((barcode) {
-          final originalImageSize = barcode.imageSize;
-          final originalCornerPoints =
-              barcode.barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false);
-
           return BarcodeRectangle(
-            cornerPoints: originalCornerPoints,
-            imageSize: originalImageSize,
+            cornerPoints: barcode.cornerPoints,
+            imageSize:  barcode.imageSize,
             color: Colors.white,
             strokeWidth: 2,
           );

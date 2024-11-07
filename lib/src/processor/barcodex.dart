@@ -13,4 +13,12 @@ class BarcodeX {
     required this.barcode,
     required this.imageSize,
   });
+
+  @override
+  String toString() {
+    return '[${DateTime.now}]BarcodeX(rawValue=${barcode.rawValue},imageSize=$imageSize)';
+  }
+
+  List<Offset> get cornerPoints =>
+      barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false);
 }

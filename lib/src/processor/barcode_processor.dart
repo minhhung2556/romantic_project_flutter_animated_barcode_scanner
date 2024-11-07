@@ -10,19 +10,14 @@ import '../index.dart';
 class BarcodeProcessor {
   late BarcodeScanner barcodeScanner;
 
-  /// latest found barcodes.
-  final StreamController<List<BarcodeX>> latestBarcodes = StreamController();
-
-  final _waitingImageQueue = List<CameraImage>.empty(growable: true);
   Future<List<BarcodeX>>? _processing;
   CameraImage? _processingImage;
-  final int maxImageQueue;
   final CameraController cameraController;
+
   final OnBarcodesFoundCallback onBarcodesFound;
   final OnFailedToDoSomething? onFailedToProcessBarcode;
 
   BarcodeProcessor({
-    this.maxImageQueue = 1,
     List<BarcodeFormat>? barcodeFormats,
     required this.cameraController,
     required this.onBarcodesFound,
@@ -31,39 +26,23 @@ class BarcodeProcessor {
     barcodeScanner = barcodeFormats == null ? BarcodeScanner() : BarcodeScanner(formats: barcodeFormats);
   }
 
-  bool get _shouldProcess => _processingImage == null && _processing == null && _waitingImageQueue.isNotEmpty;
+  bool get _shouldProcess => _processingImage == null && _processing == null;
 
   void onProcessingCompleted(List<BarcodeX> barcodes) {
     onBarcodesFound(barcodes);
-    latestBarcodes.add(barcodes);
-    _waitingImageQueue.remove(_processingImage);
     _processingImage = null;
     _processing = null;
-    continueProcess();
-  }
-
-  void continueProcess() {
-    if (_shouldProcess) {
-      // always process latest image.
-      _processingImage = _waitingImageQueue.last;
-      _processing = _processImage(_processingImage!)..then(onProcessingCompleted);
-    } else {
-      //waiting.
-    }
   }
 
   Future<void> dispose() async {
     await barcodeScanner.close();
     _processingImage = null;
     _processing = null;
-    _waitingImageQueue.clear();
-    await latestBarcodes.close();
   }
 
   void processImage(CameraImage image) {
-    if (_waitingImageQueue.length < maxImageQueue) {
-      _waitingImageQueue.add(image);
-      continueProcess();
+    if (_shouldProcess) {
+      _processing = _processImage(_processingImage = image)..then(onProcessingCompleted);
     }
   }
 
