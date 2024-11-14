@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
   runApp(MyApp());
 }
 
@@ -35,15 +31,6 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Romantic Project'),
-      ),
-      body: ScannerPreview(
-        onBarcodesFound: (barcodes) {
-          debugPrint('Home.build: $barcodes');
-        },
-      ),
-    );
+    return BarcodeScannerPreview();
   }
 }
