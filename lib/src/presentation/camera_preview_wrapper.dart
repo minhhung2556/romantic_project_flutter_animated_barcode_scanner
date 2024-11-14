@@ -66,9 +66,9 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
             } else {
               previewSize = Size(previewSize.height * ratio, previewSize.height);
             }
-            print('_CameraPreviewWrapperState._buildCamera.screenSize=$size, ratio=${size.aspectRatio}');
-            print('_CameraPreviewWrapperState._buildCamera.pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}');
-            print('_CameraPreviewWrapperState._buildCamera.previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
+            debugPrint('_CameraPreviewWrapperState._buildCamera.screenSize=$size, ratio=${size.aspectRatio}');
+            debugPrint('_CameraPreviewWrapperState._buildCamera.pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}');
+            debugPrint('_CameraPreviewWrapperState._buildCamera.previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
 
             widget.onCameraIsReady(cameraController!, pictureSize, previewSize);
           });
@@ -116,7 +116,7 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    print('_CameraPreviewWrapperState.build.widgetSize: ${MediaQuery.sizeOf(context)}');
+    debugPrint('_CameraPreviewWrapperState.build.widgetSize: ${MediaQuery.sizeOf(context)}');
     return _buildCamera(context);
   }
 

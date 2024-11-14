@@ -37,7 +37,7 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
           onCameraIsStreaming: onCameraIsStreaming,
           child: _buildBarcodes(context, barcodes),
         ),
-        BasicQRFinder(),
+        RomanticQRFinder(),
       ],
     );
   }
