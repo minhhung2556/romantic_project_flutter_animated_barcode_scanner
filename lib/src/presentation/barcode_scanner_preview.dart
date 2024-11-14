@@ -29,12 +29,16 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
 
   @override
   Widget build(BuildContext context) {
-    return CameraPreviewWrapper(
-      originalPreferredOrientations: widget.originalPreferredOrientations,
-      onCameraIsReady: onCameraIsReady,
-      onCameraIsStreaming: onCameraIsStreaming,
-      foreground: BasicQRFinder(),
-      cameraChild: _buildBarcodes(context, barcodes),
+    return Stack(
+      children: [
+        CameraPreviewWrapper(
+          originalPreferredOrientations: widget.originalPreferredOrientations,
+          onCameraIsReady: onCameraIsReady,
+          onCameraIsStreaming: onCameraIsStreaming,
+          child: _buildBarcodes(context, barcodes),
+        ),
+        BasicQRFinder(),
+      ],
     );
   }
 

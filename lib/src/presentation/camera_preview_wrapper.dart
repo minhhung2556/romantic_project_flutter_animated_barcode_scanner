@@ -7,16 +7,14 @@ import 'package:flutter/services.dart';
 import '../index.dart';
 
 class CameraPreviewWrapper extends StatefulWidget {
-  final Widget? cameraChild;
-  final Widget? foreground;
+  final Widget? child;
   final OnCameraIsReady onCameraIsReady;
   final OnCameraIsStreaming onCameraIsStreaming;
   final List<DeviceOrientation> originalPreferredOrientations;
 
   const CameraPreviewWrapper(
       {super.key,
-      this.cameraChild,
-      this.foreground,
+      this.child,
       required this.onCameraIsReady,
       required this.onCameraIsStreaming,
       required this.originalPreferredOrientations});
@@ -41,28 +39,23 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
             final size = MediaQuery.of(context).size;
             final pictureSize = cameraController!.value.previewSize!;
             late Size previewSize;
-            late BoxFit previewFit;
             if (MediaQuery.of(context).orientation == Orientation.portrait) {
               //device portrait.
               if (cameraController!.value.previewSize!.aspectRatio > 1) {
                 //picture landscape.
                 previewSize = size;
-                previewFit = BoxFit.fitHeight;
               } else {
                 //picture portrait.
                 previewSize = Size(size.height, size.width);
-                previewFit = BoxFit.fitHeight;
               }
             } else {
               //device landscape.
               if (cameraController!.value.previewSize!.aspectRatio > 1) {
                 //picture landscape.
                 previewSize = Size(size.height, size.width);
-                previewFit = BoxFit.fitWidth;
               } else {
                 //picture portrait.
                 previewSize = size;
-                previewFit = BoxFit.fitHeight;
               }
             }
 
@@ -123,6 +116,7 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    print('_CameraPreviewWrapperState.build.widgetSize: ${MediaQuery.sizeOf(context)}');
     return _buildCamera(context);
   }
 
@@ -130,20 +124,11 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
     if (cameraController == null) {
       return const Center(child: CircularProgressIndicator());
     } else {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return Stack(
-            children: [
-              Center(
-                child: CameraPreview(
-                  cameraController!,
-                  child: widget.cameraChild,
-                ),
-              ),
-              if (widget.foreground != null) widget.foreground!,
-            ],
-          );
-        },
+      return SingleChildScrollView(
+        child: CameraPreview(
+          cameraController!,
+          child: widget.child,
+        ),
       );
     }
   }
