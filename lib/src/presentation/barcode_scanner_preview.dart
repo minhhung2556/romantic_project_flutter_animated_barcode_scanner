@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
 import '../index.dart';
@@ -9,8 +8,10 @@ import '../index.dart';
 class BarcodeScannerPreview extends StatefulWidget {
   final OnBarcodesFoundCallback? onBarcodesFound;
   final OnFailedToDoSomething? onFailedToProcessBarcode;
+  final List<DeviceOrientation> originalPreferredOrientations;
 
-  const BarcodeScannerPreview({super.key, this.onBarcodesFound, this.onFailedToProcessBarcode});
+  const BarcodeScannerPreview(
+      {super.key, this.onBarcodesFound, this.onFailedToProcessBarcode, required this.originalPreferredOrientations});
 
   @override
   State<BarcodeScannerPreview> createState() => _BarcodeScannerPreviewState();
@@ -28,14 +29,13 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
 
   @override
   Widget build(BuildContext context) {
-    return OrientationBuilder(builder: (context, orientation) {
-      return CameraPreviewWrapper(
-        onCameraIsReady: onCameraIsReady,
-        onCameraIsStreaming: onCameraIsStreaming,
-        foreground: BasicQRFinder(),
-        cameraChild: _buildBarcodes(context, barcodes),
-      );
-    });
+    return CameraPreviewWrapper(
+      originalPreferredOrientations: widget.originalPreferredOrientations,
+      onCameraIsReady: onCameraIsReady,
+      onCameraIsStreaming: onCameraIsStreaming,
+      foreground: BasicQRFinder(),
+      cameraChild: _buildBarcodes(context, barcodes),
+    );
   }
 
   void onCameraIsReady(CameraController controller, Size pictureSize, Size previewSize) {
@@ -71,26 +71,9 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
   }
 
   Widget _buildBarcodes(BuildContext context, List<BarcodeX> barcodes) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    final convertedBarcodes = /*isLandscape
-        ? barcodes.map((e) {
-            return BarcodeX(
-                barcode: Barcode(
-                  type: e.barcode.type,
-                  format: e.barcode.format,
-                  displayValue: e.barcode.displayValue,
-                  rawValue: e.barcode.rawValue,
-                  rawBytes: e.barcode.rawBytes,
-                  boundingBox: e.barcode.boundingBox,
-                  cornerPoints: e.barcode.cornerPoints.map((point) => Point(point.y, point.x)).toList(growable: false),
-                  value: e.barcode.value,
-                ),
-                imageSize: e.imageSize);
-          }).toList(growable: false)
-        : */barcodes;
     return Stack(
       children: [
-        ...convertedBarcodes.map((barcode) {
+        ...barcodes.map((barcode) {
           return BarcodeRectangle(
             cornerPoints: barcode.cornerPoints,
             imageSize: barcode.imageSize,

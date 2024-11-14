@@ -11,9 +11,15 @@ class CameraPreviewWrapper extends StatefulWidget {
   final Widget? foreground;
   final OnCameraIsReady onCameraIsReady;
   final OnCameraIsStreaming onCameraIsStreaming;
+  final List<DeviceOrientation> originalPreferredOrientations;
 
   const CameraPreviewWrapper(
-      {super.key, this.cameraChild, this.foreground, required this.onCameraIsReady, required this.onCameraIsStreaming});
+      {super.key,
+      this.cameraChild,
+      this.foreground,
+      required this.onCameraIsReady,
+      required this.onCameraIsStreaming,
+      required this.originalPreferredOrientations});
 
   @override
   State<CameraPreviewWrapper> createState() => _CameraPreviewWrapperState();
@@ -24,51 +30,55 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((duration) {
-      _initializeCamera().then((e) {
-        setState(() {
-          cameraController = e;
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]).then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((duration) {
+        _initializeCamera().then((e) {
+          setState(() {
+            cameraController = e;
 
-          final size = MediaQuery.of(context).size;
-          final pictureSize = cameraController!.value.previewSize!;
-          late Size previewSize;
-          late BoxFit previewFit;
-          if (MediaQuery.of(context).orientation == Orientation.portrait) {
-            //device portrait.
-            if (cameraController!.value.previewSize!.aspectRatio > 1) {
-              //picture landscape.
-              previewSize = size;
-              previewFit = BoxFit.fitHeight;
+            final size = MediaQuery.of(context).size;
+            final pictureSize = cameraController!.value.previewSize!;
+            late Size previewSize;
+            late BoxFit previewFit;
+            if (MediaQuery.of(context).orientation == Orientation.portrait) {
+              //device portrait.
+              if (cameraController!.value.previewSize!.aspectRatio > 1) {
+                //picture landscape.
+                previewSize = size;
+                previewFit = BoxFit.fitHeight;
+              } else {
+                //picture portrait.
+                previewSize = Size(size.height, size.width);
+                previewFit = BoxFit.fitHeight;
+              }
             } else {
-              //picture portrait.
-              previewSize = Size(size.height, size.width);
-              previewFit = BoxFit.fitHeight;
+              //device landscape.
+              if (cameraController!.value.previewSize!.aspectRatio > 1) {
+                //picture landscape.
+                previewSize = Size(size.height, size.width);
+                previewFit = BoxFit.fitWidth;
+              } else {
+                //picture portrait.
+                previewSize = size;
+                previewFit = BoxFit.fitHeight;
+              }
             }
-          } else {
-            //device landscape.
-            if (cameraController!.value.previewSize!.aspectRatio > 1) {
-              //picture landscape.
-              previewSize = Size(size.height, size.width);
-              previewFit = BoxFit.fitWidth;
+
+            // fit to shortestSide of picture.
+            late double ratio = pictureSize.longestSide / pictureSize.shortestSide;
+            if (pictureSize.shortestSide == pictureSize.width) {
+              previewSize = Size(previewSize.width, previewSize.width * ratio);
             } else {
-              //picture portrait.
-              previewSize = size;
-              previewFit = BoxFit.fitHeight;
+              previewSize = Size(previewSize.height * ratio, previewSize.height);
             }
-          }
+            print('_CameraPreviewWrapperState._buildCamera.screenSize=$size, ratio=${size.aspectRatio}');
+            print('_CameraPreviewWrapperState._buildCamera.pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}');
+            print('_CameraPreviewWrapperState._buildCamera.previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
 
-          // fit to shortestSide of picture.
-          late double ratio = pictureSize.longestSide / pictureSize.shortestSide;
-          if (pictureSize.shortestSide == pictureSize.width) {
-            previewSize = Size(previewSize.width, previewSize.width * ratio);
-          } else {
-            previewSize = Size(previewSize.height * ratio, previewSize.height);
-          }
-          print('_CameraPreviewWrapperState._buildCamera.screenSize=$size, ratio=${size.aspectRatio}');
-          print('_CameraPreviewWrapperState._buildCamera.pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}');
-          print('_CameraPreviewWrapperState._buildCamera.previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
-
-          widget.onCameraIsReady(cameraController!, pictureSize, previewSize);
+            widget.onCameraIsReady(cameraController!, pictureSize, previewSize);
+          });
         });
       });
     });
@@ -78,6 +88,7 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
   @override
   void dispose() {
     _disposeCamera();
+    SystemChrome.setPreferredOrientations(widget.originalPreferredOrientations);
     super.dispose();
   }
 
@@ -92,6 +103,7 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
       await _controller.initialize();
+      await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
       await _controller.startImageStream(widget.onCameraIsStreaming);
       return _controller;
     } catch (e, s) {
@@ -123,10 +135,11 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
           return Stack(
             children: [
               Center(
-                  child: CameraPreview(
-                cameraController!,
-                child: widget.cameraChild,
-              )),
+                child: CameraPreview(
+                  cameraController!,
+                  child: widget.cameraChild,
+                ),
+              ),
               if (widget.foreground != null) widget.foreground!,
             ],
           );
