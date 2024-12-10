@@ -76,19 +76,4 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
       onFailedToProcessBarcode: widget.onFailedToProcessBarcode,
     );
   }
-
-  Widget _buildBarcodes(BuildContext context, List<BarcodeX> barcodes) {
-    return Stack(
-      children: [
-        ...barcodes.map((barcode) {
-          return BarcodeRectangle(
-            cornerPoints: barcode.cornerPoints,
-            imageSize: barcode.imageSize,
-            color: Colors.white,
-            strokeWidth: 2,
-          );
-        }),
-      ],
-    );
-  }
 }

@@ -91,13 +91,10 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
         ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888,
+        fps: 25,
       );
-      debugPrint(
-          '_CameraPreviewWrapperState._initializeCamera: sensorOrientation=${cameras.first.sensorOrientation}');
-      ;
       await _controller.initialize();
       await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-      // _controller.setDescription(CameraDescription(name: cameras.first.name, lensDirection: cameras.first.lensDirection, sensorOrientation: 180));
       await _controller.startImageStream(widget.onCameraIsStreaming);
       return _controller;
     } catch (e, s) {
