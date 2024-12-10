@@ -58,9 +58,6 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
       setState(() {
         this.barcodes = barcodes;
         widget.onBarcodesFound?.call(barcodes);
-        barcodes.forEach((e) {
-          print('_BarcodeScannerPreviewState.onBarcodesFound: ${e.cornerPoints}');
-        });
       });
     }
   }

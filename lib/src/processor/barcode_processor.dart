@@ -70,17 +70,10 @@ class BarcodeProcessor {
     try {
       final res = await barcodeScanner.processImage(image);
       await barcodeScanner.close();
-      debugPrint('BarcodeProcessor._processImageForBarcode.found: ${res.length} barcodes.');
+      // debugPrint('BarcodeProcessor._processImageForBarcode.found: ${res.length} barcodes.');
       if (res.isNotEmpty) {
-        late Size adaptedImageSize;
-        final deviceOrientation = cameraController.value.deviceOrientation;
         final imageSize = image.metadata!.size;
-        if (deviceOrientation == DeviceOrientation.portraitUp || deviceOrientation == DeviceOrientation.portraitDown) {
-          adaptedImageSize = Size(imageSize.height, imageSize.width);
-        } else {
-          adaptedImageSize = imageSize;
-        }
-        return res.map((e) => BarcodeX(barcode: e, imageSize: adaptedImageSize)).toList(growable: false);
+        return res.map((e) => BarcodeX(barcode: e, imageSize: imageSize)).toList(growable: false);
       }
     } catch (e, s) {
       debugPrintStack(stackTrace: s, label: 'BarcodeProcessor._processImageForBarcode.error: $e');

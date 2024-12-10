@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class BarcodeRectangle extends StatefulWidget {
+class BarcodeRectangle extends StatelessWidget {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
@@ -15,19 +15,14 @@ class BarcodeRectangle extends StatefulWidget {
   });
 
   @override
-  State<BarcodeRectangle> createState() => _BarcodeRectangleState();
-}
-
-class _BarcodeRectangleState extends State<BarcodeRectangle> {
-  @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      size: widget.imageSize,
+      size: imageSize,
       painter: BarcodePainter(
-        cornerPoints: widget.cornerPoints,
-        imageSize: widget.imageSize,
-        color: widget.color,
-        strokeWidth: widget.strokeWidth,
+        cornerPoints: cornerPoints,
+        imageSize: imageSize,
+        color: color,
+        strokeWidth: strokeWidth,
       ),
     );
   }
@@ -66,6 +61,6 @@ class BarcodePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    return true;
   }
 }

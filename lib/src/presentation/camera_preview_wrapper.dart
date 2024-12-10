@@ -36,45 +36,40 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
           setState(() {
             cameraController = e;
 
-            final size = MediaQuery.of(context).size;
+            final screenSize = MediaQuery.of(context).size;
             final pictureSize = cameraController!.value.previewSize!;
             late Size previewSize;
-            if (MediaQuery.of(context).orientation == Orientation.portrait) {
+            if (screenSize.width < screenSize.height) {
               //device portrait.
-              if (cameraController!.value.previewSize!.aspectRatio > 1) {
+              if (pictureSize.width > pictureSize.height) {
                 //picture landscape.
-                previewSize = size;
+                previewSize = screenSize;
               } else {
                 //picture portrait.
-                previewSize = Size(size.height, size.width);
+                previewSize = Size(screenSize.height, screenSize.width);
               }
             } else {
               //device landscape.
-              if (cameraController!.value.previewSize!.aspectRatio > 1) {
+              if (pictureSize.width > pictureSize.height) {
                 //picture landscape.
-                previewSize = Size(size.height, size.width);
+                previewSize = Size(screenSize.height, screenSize.width);
               } else {
                 //picture portrait.
-                previewSize = size;
+                previewSize = screenSize;
               }
             }
 
             // fit to shortestSide of picture.
-            late double ratio = pictureSize.longestSide / pictureSize.shortestSide;
-            if (pictureSize.shortestSide == pictureSize.width) {
-              previewSize = Size(previewSize.width, previewSize.width * ratio);
-            } else {
-              previewSize = Size(previewSize.height * ratio, previewSize.height);
-            }
-            debugPrint('_CameraPreviewWrapperState._buildCamera.screenSize=$size, ratio=${size.aspectRatio}');
-            debugPrint('_CameraPreviewWrapperState._buildCamera.pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}');
-            debugPrint('_CameraPreviewWrapperState._buildCamera.previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
+            previewSize = Size(screenSize.width, screenSize.width * pictureSize.aspectRatio);
+            debugPrint(
+                '_CameraPreviewWrapperState._buildCamera:\n #screenSize=$screenSize, ratio=${screenSize.aspectRatio}\n #pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}\n #previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
 
             widget.onCameraIsReady(cameraController!, pictureSize, previewSize);
           });
         });
       });
     });
+
     super.initState();
   }
 
@@ -91,16 +86,22 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
       final cameras = await availableCameras();
       var _controller = CameraController(
         cameras.first,
-        ResolutionPreset.high,
+        ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
+      debugPrint(
+          '_CameraPreviewWrapperState._initializeCamera: sensorOrientation=${cameras.first.sensorOrientation}');
+      ;
       await _controller.initialize();
       await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+      // _controller.setDescription(CameraDescription(name: cameras.first.name, lensDirection: cameras.first.lensDirection, sensorOrientation: 180));
       await _controller.startImageStream(widget.onCameraIsStreaming);
       return _controller;
     } catch (e, s) {
-      debugPrintStack(stackTrace: s, label: '_CameraPreviewWrapperState._initializeCamera.error: $e');
+      debugPrintStack(
+          stackTrace: s,
+          label: '_CameraPreviewWrapperState._initializeCamera.error: $e');
     }
     return null;
   }
@@ -109,14 +110,16 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
     try {
       unawaited(cameraController?.dispose());
     } catch (e, s) {
-      debugPrintStack(stackTrace: s, label: '_CameraPreviewWrapperState._disposeCamera._controller.error: $e');
+      debugPrintStack(
+          stackTrace: s,
+          label:
+              '_CameraPreviewWrapperState._disposeCamera._controller.error: $e');
     }
     cameraController = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('_CameraPreviewWrapperState.build.widgetSize: ${MediaQuery.sizeOf(context)}');
     return _buildCamera(context);
   }
 
