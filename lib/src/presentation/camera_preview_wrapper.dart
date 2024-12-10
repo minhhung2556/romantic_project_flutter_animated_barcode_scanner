@@ -12,12 +12,13 @@ class CameraPreviewWrapper extends StatefulWidget {
   final OnCameraIsStreaming onCameraIsStreaming;
   final List<DeviceOrientation> originalPreferredOrientations;
 
-  const CameraPreviewWrapper(
-      {super.key,
-      this.child,
-      required this.onCameraIsReady,
-      required this.onCameraIsStreaming,
-      required this.originalPreferredOrientations});
+  const CameraPreviewWrapper({
+    super.key,
+    this.child,
+    required this.onCameraIsReady,
+    required this.onCameraIsStreaming,
+    required this.originalPreferredOrientations,
+  });
 
   @override
   State<CameraPreviewWrapper> createState() => _CameraPreviewWrapperState();
@@ -60,7 +61,8 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
             }
 
             // fit to shortestSide of picture.
-            previewSize = Size(screenSize.width, screenSize.width * pictureSize.aspectRatio);
+            previewSize = Size(
+                screenSize.width, screenSize.width * pictureSize.aspectRatio);
             debugPrint(
                 '_CameraPreviewWrapperState._buildCamera:\n #screenSize=$screenSize, ratio=${screenSize.aspectRatio}\n #pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}\n #previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
 

@@ -13,6 +13,8 @@ class RomanticQRFinder extends StatelessWidget {
   final Color borderColor;
   final Widget? child;
   final double borderStrokeWidth;
+  final Color lineColor;
+  final double lineStrokeWidth;
 
   const RomanticQRFinder({
     super.key,
@@ -21,11 +23,14 @@ class RomanticQRFinder extends StatelessWidget {
     this.child,
     this.borderColor = Colors.white,
     this.borderStrokeWidth = 2,
+    this.lineColor = Colors.white,
+    this.lineStrokeWidth = 2,
   });
 
   @override
   Widget build(BuildContext context) {
-    final qrFinderRectDimension = MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
+    final qrFinderRectDimension =
+        MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     return Stack(
       children: [
         Stack(
@@ -33,12 +38,15 @@ class RomanticQRFinder extends StatelessWidget {
           children: [
             // background
             ColorFiltered(
-              colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.srcOut),
+              colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.5), BlendMode.srcOut),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    decoration: const BoxDecoration(color: Colors.black, backgroundBlendMode: BlendMode.dstOut),
+                    decoration: const BoxDecoration(
+                        color: Colors.black,
+                        backgroundBlendMode: BlendMode.dstOut),
                   ),
                   // add a mask for qr finder rectangle.
                   Center(
@@ -56,15 +64,19 @@ class RomanticQRFinder extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: EdgeInsets.all(apertureEdge+4),
-          child: GradientLineFinder(),
+          padding: EdgeInsets.all(apertureEdge + 4),
+          child: GradientLineFinder(
+            lineColor: lineColor,
+            lineStrokeWidth: lineStrokeWidth,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildBorders(BuildContext context) {
-    final qrFinderRectDimension = MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
+    final qrFinderRectDimension =
+        MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     final x = max(0.0, qrFinderRectDimension - viewFinderEdge);
     return Stack(
       children: [
@@ -134,19 +146,31 @@ class RomanticQRFinder extends StatelessWidget {
 }
 
 class GradientLineFinder extends StatefulWidget {
-  const GradientLineFinder({super.key});
+  final Color lineColor;
+  final double lineStrokeWidth;
+
+  const GradientLineFinder({
+    super.key,
+    this.lineColor = Colors.white,
+    this.lineStrokeWidth = 2,
+  });
 
   @override
   State<GradientLineFinder> createState() => _GradientLineFinderState();
 }
 
-class _GradientLineFinderState extends State<GradientLineFinder> with SingleTickerProviderStateMixin {
+class _GradientLineFinderState extends State<GradientLineFinder>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _controller.addListener(() {
+      setState(() {});
+    });
     _controller.repeat(reverse: true);
   }
 
@@ -161,11 +185,16 @@ class _GradientLineFinderState extends State<GradientLineFinder> with SingleTick
     return LayoutBuilder(builder: (context, constraints) {
       final h = constraints.maxHeight;
       return Transform.translate(
-        offset: ui.Offset(0.0, h*Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeInOutQuart)).evaluate(_controller)),
+        offset: ui.Offset(
+            0.0,
+            h *
+                Tween(begin: 0.0, end: 1.0)
+                    .chain(CurveTween(curve: Curves.easeInOutQuart))
+                    .evaluate(_controller)),
         child: Container(
-          color: Colors.white,
+          color: widget.lineColor,
           width: double.infinity,
-          height: 2,
+          height: widget.lineStrokeWidth,
         ),
       );
     });
@@ -173,6 +202,14 @@ class _GradientLineFinderState extends State<GradientLineFinder> with SingleTick
 }
 
 class GradientLinePainter extends CustomPainter {
+  final Color startColor;
+  final Color endColor;
+
+  GradientLinePainter({
+    this.startColor = Colors.transparent,
+    this.endColor = Colors.white,
+  });
+
   @override
   void paint(Canvas canvas, Size size) {
     final paintBottom = Paint()
@@ -180,8 +217,8 @@ class GradientLinePainter extends CustomPainter {
         size.topCenter(ui.Offset.zero),
         size.bottomCenter(ui.Offset.zero),
         [
-          Colors.transparent,
-          Colors.white,
+          startColor,
+          endColor,
         ],
       );
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintBottom);
@@ -189,6 +226,6 @@ class GradientLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    return true;
   }
 }

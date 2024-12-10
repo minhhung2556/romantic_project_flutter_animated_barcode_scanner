@@ -9,9 +9,17 @@ class BarcodeScannerPreview extends StatefulWidget {
   final OnBarcodesFoundCallback? onBarcodesFound;
   final OnFailedToDoSomething? onFailedToProcessBarcode;
   final List<DeviceOrientation> originalPreferredOrientations;
+  final Widget? finderWidget;
+  final BarcodesWidgetBuilder? barcodesBuilder;
 
-  const BarcodeScannerPreview(
-      {super.key, this.onBarcodesFound, this.onFailedToProcessBarcode, required this.originalPreferredOrientations});
+  const BarcodeScannerPreview({
+    super.key,
+    this.onBarcodesFound,
+    this.onFailedToProcessBarcode,
+    required this.originalPreferredOrientations,
+    this.finderWidget,
+    this.barcodesBuilder,
+  });
 
   @override
   State<BarcodeScannerPreview> createState() => _BarcodeScannerPreviewState();
@@ -23,11 +31,6 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
   List<BarcodeX> barcodes = [];
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -35,14 +38,17 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
           originalPreferredOrientations: widget.originalPreferredOrientations,
           onCameraIsReady: onCameraIsReady,
           onCameraIsStreaming: onCameraIsStreaming,
-          child: _buildBarcodes(context, barcodes),
+          child: widget.barcodesBuilder != null
+              ? widget.barcodesBuilder!(context, barcodes)
+              : null,
         ),
-        RomanticQRFinder(),
+        if (widget.finderWidget != null) widget.finderWidget!,
       ],
     );
   }
 
-  void onCameraIsReady(CameraController controller, Size pictureSize, Size previewSize) {
+  void onCameraIsReady(
+      CameraController controller, Size pictureSize, Size previewSize) {
     this.cameraController = controller;
     _initBarcodeProcessor();
   }
