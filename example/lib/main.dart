@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Example',
-      theme: ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+      theme: ThemeData.from(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
       initialRoute: '/',
       routes: {
         '/': (context) => HomeScreen(),
@@ -45,6 +46,24 @@ class BarcodeScannerScreen extends StatelessWidget {
             dimension: MediaQuery.of(context).size.shortestSide,
             child: BarcodeScannerPreview(
               originalPreferredOrientations: kPreferredOrientations,
+              finderWidget: RomanticQRFinder(
+                borderColor: Colors.limeAccent,
+                lineColor: Colors.deepOrange,
+              ),
+              barcodesBuilder: (context, barcodes) {
+                return Stack(
+                  children: barcodes
+                      .map(
+                        (e) => BarcodeRectangle(
+                          cornerPoints: e.cornerPoints,
+                          imageSize: e.imageSize,
+                          color: Colors.deepOrange,
+                          strokeWidth: 2,
+                        ),
+                      )
+                      .toList(growable: false),
+                );
+              },
             ),
           ),
         ],
@@ -60,7 +79,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Example'),
+        title: Text('Romantic Example'),
       ),
       body: Column(
         children: [
@@ -73,7 +92,8 @@ class HomeScreen extends StatelessWidget {
           FilledButton(
             onPressed: () {
               if (MediaQuery.of(context).orientation == Orientation.portrait) {
-                SystemChrome.setPreferredOrientations(kPreferredOrientations.reversed.toList(growable: false));
+                SystemChrome.setPreferredOrientations(
+                    kPreferredOrientations.reversed.toList(growable: false));
               } else {
                 SystemChrome.setPreferredOrientations(kPreferredOrientations);
               }
