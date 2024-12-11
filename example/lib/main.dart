@@ -86,9 +86,11 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
           ),
           cameraController: cameraController,
           mode: mode,
-          finderWidget: RomanticQRFinder(
+          finderWidget: AnimatedQRFinder(
             lineColor: Colors.green,
             borderColor: Colors.greenAccent,
+            borderStrokeWidth: 2,
+            lineStrokeWidth: 1,
           ),
         ),
       ),

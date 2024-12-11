@@ -21,19 +21,22 @@ class BasicQRFinder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const borderColor = Colors.white;
-    final qrFinderRectDimension = MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
+    final qrFinderRectDimension =
+        MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     final x = max(0.0, qrFinderRectDimension - viewFinderEdge);
     return Stack(
       fit: StackFit.expand,
       children: [
         // background
         ColorFiltered(
-          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.srcOut),
+          colorFilter:
+              ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.srcOut),
           child: Stack(
             fit: StackFit.expand,
             children: [
               Container(
-                decoration: const BoxDecoration(color: Colors.black, backgroundBlendMode: BlendMode.dstOut),
+                decoration: const BoxDecoration(
+                    color: Colors.black, backgroundBlendMode: BlendMode.dstOut),
               ),
               // add a mask for qr finder rectangle.
               Align(
