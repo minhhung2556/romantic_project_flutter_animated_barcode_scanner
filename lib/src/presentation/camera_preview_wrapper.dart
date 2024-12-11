@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -36,37 +37,7 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
         _initializeCamera().then((e) {
           setState(() {
             cameraController = e;
-
-            final screenSize = MediaQuery.of(context).size;
-            final pictureSize = cameraController!.value.previewSize!;
-            late Size previewSize;
-            if (screenSize.width < screenSize.height) {
-              //device portrait.
-              if (pictureSize.width > pictureSize.height) {
-                //picture landscape.
-                previewSize = screenSize;
-              } else {
-                //picture portrait.
-                previewSize = Size(screenSize.height, screenSize.width);
-              }
-            } else {
-              //device landscape.
-              if (pictureSize.width > pictureSize.height) {
-                //picture landscape.
-                previewSize = Size(screenSize.height, screenSize.width);
-              } else {
-                //picture portrait.
-                previewSize = screenSize;
-              }
-            }
-
-            // fit to shortestSide of picture.
-            previewSize = Size(
-                screenSize.width, screenSize.width * pictureSize.aspectRatio);
-            debugPrint(
-                '_CameraPreviewWrapperState._buildCamera:\n #screenSize=$screenSize, ratio=${screenSize.aspectRatio}\n #pictureSize=$pictureSize, ratio=${pictureSize.aspectRatio}\n #previewSize=$previewSize, ratio=${previewSize.aspectRatio}');
-
-            widget.onCameraIsReady(cameraController!, pictureSize, previewSize);
+            widget.onCameraIsReady(cameraController!);
           });
         });
       });
@@ -82,13 +53,16 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
     super.dispose();
   }
 
+  bool get isAndroid => Platform.isAndroid;
+
   Future<CameraController?> _initializeCamera() async {
+    // if the image quality is medium then on android the [BarcodeScanner] can not recognize any qr codes.
     debugPrint('_CameraPreviewWrapperState._initializeCamera');
     try {
       final cameras = await availableCameras();
       var _controller = CameraController(
         cameras.first,
-        ResolutionPreset.medium,
+        isAndroid ? ResolutionPreset.high : ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888,
         fps: 25,

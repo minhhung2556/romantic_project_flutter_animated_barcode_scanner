@@ -6,18 +6,22 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 import '../index.dart';
 
 class BarcodeScannerPreview extends StatefulWidget {
+  final OnCameraIsReady? onCameraIsReady;
+  final OnCameraIsStreaming? onCameraIsStreaming;
   final OnBarcodesFoundCallback? onBarcodesFound;
   final OnFailedToDoSomething? onFailedToProcessBarcode;
+
   final List<DeviceOrientation> originalPreferredOrientations;
-  final Widget? finderWidget;
+
   final BarcodesWidgetBuilder? barcodesBuilder;
 
   const BarcodeScannerPreview({
     super.key,
+    this.onCameraIsReady,
+    this.onCameraIsStreaming,
     this.onBarcodesFound,
     this.onFailedToProcessBarcode,
     required this.originalPreferredOrientations,
-    this.finderWidget,
     this.barcodesBuilder,
   });
 
@@ -32,31 +36,27 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        CameraPreviewWrapper(
-          originalPreferredOrientations: widget.originalPreferredOrientations,
-          onCameraIsReady: onCameraIsReady,
-          onCameraIsStreaming: onCameraIsStreaming,
-          child: widget.barcodesBuilder != null
-              ? widget.barcodesBuilder!(context, barcodes)
-              : null,
-        ),
-        if (widget.finderWidget != null) widget.finderWidget!,
-      ],
+    return CameraPreviewWrapper(
+      originalPreferredOrientations: widget.originalPreferredOrientations,
+      onCameraIsReady: onCameraIsReady,
+      onCameraIsStreaming: onCameraIsStreaming,
+      child: widget.barcodesBuilder != null
+          ? widget.barcodesBuilder!(context, barcodes)
+          : null,
     );
   }
 
-  void onCameraIsReady(
-      CameraController controller, Size pictureSize, Size previewSize) {
+  void onCameraIsReady(CameraController controller) {
     this.cameraController = controller;
     _initBarcodeProcessor();
+    widget.onCameraIsReady?.call(controller);
   }
 
   void onCameraIsStreaming(CameraImage image) {
     if (barcodeProcessor != null) {
       barcodeProcessor!.processImage(image);
     }
+    widget.onCameraIsStreaming?.call(image);
   }
 
   void onBarcodesFound(List<BarcodeX> barcodes) {

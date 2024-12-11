@@ -5,6 +5,6 @@ import '../index.dart';
 
 typedef OnBarcodesFoundCallback = void Function(List<BarcodeX> barcodes);
 typedef OnFailedToDoSomething = void Function(Object? e, StackTrace? s);
-typedef OnCameraIsReady = void Function(CameraController controller, Size previewSize, Size pictureSize);
+typedef OnCameraIsReady = void Function(CameraController controller);
 typedef OnCameraIsStreaming = void Function(CameraImage image);
 typedef BarcodesWidgetBuilder = Widget Function(BuildContext context, List<BarcodeX> barcodes);

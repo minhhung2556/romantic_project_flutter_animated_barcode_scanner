@@ -212,16 +212,16 @@ class GradientLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paintBottom = Paint()
+    final paintGradient = Paint()
       ..shader = ui.Gradient.linear(
         size.topCenter(ui.Offset.zero),
         size.bottomCenter(ui.Offset.zero),
         [
-          startColor,
-          endColor,
+          Colors.transparent,
+          Colors.white,
         ],
       );
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintBottom);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintGradient);
   }
 
   @override

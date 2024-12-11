@@ -61,6 +61,6 @@ class BarcodePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    return true; // for realtime update the rectangle.
   }
 }
