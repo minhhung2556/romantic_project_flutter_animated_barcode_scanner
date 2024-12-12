@@ -15,6 +15,7 @@ class BarcodeScannerPreview extends StatefulWidget {
 
   final BarcodesWidgetBuilder? barcodesBuilder;
   final CameraControllerBuilder cameraControllerBuilder;
+  final List<BarcodeFormat>? barcodeFormats;
 
   const BarcodeScannerPreview({
     super.key,
@@ -25,6 +26,7 @@ class BarcodeScannerPreview extends StatefulWidget {
     this.onFailedToProcessBarcode,
     required this.originalPreferredOrientations,
     this.barcodesBuilder,
+    this.barcodeFormats,
   });
 
   @override
@@ -75,7 +77,7 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
     barcodeProcessor = BarcodeProcessor(
       cameraController: cameraController!,
       onBarcodesFound: onBarcodesFound,
-      barcodeFormats: [BarcodeFormat.qrCode],
+      barcodeFormats: widget.barcodeFormats,
       onFailedToProcessBarcode: widget.onFailedToProcessBarcode,
     );
   }
