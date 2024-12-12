@@ -102,13 +102,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_animated_qr_scanner:
+  flutter_animated_barcode_scanner:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "1.0.1"
+    version: "1.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:

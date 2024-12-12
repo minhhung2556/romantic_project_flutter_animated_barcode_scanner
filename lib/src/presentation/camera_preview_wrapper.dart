@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +6,13 @@ import 'package:flutter/services.dart';
 
 import '../index.dart';
 
+/// if the image quality is medium then on android the [BarcodeScanner] can not recognize any qr codes.
 class CameraPreviewWrapper extends StatefulWidget {
   final Widget? child;
   final OnCameraIsReady onCameraIsReady;
   final OnCameraIsStreaming onCameraIsStreaming;
   final List<DeviceOrientation> originalPreferredOrientations;
+  final CameraControllerBuilder cameraControllerBuilder;
 
   const CameraPreviewWrapper({
     super.key,
@@ -19,6 +20,7 @@ class CameraPreviewWrapper extends StatefulWidget {
     required this.onCameraIsReady,
     required this.onCameraIsStreaming,
     required this.originalPreferredOrientations,
+    required this.cameraControllerBuilder,
   });
 
   @override
@@ -53,20 +55,10 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
     super.dispose();
   }
 
-  bool get isAndroid => Platform.isAndroid;
-
   Future<CameraController?> _initializeCamera() async {
-    // if the image quality is medium then on android the [BarcodeScanner] can not recognize any qr codes.
     debugPrint('_CameraPreviewWrapperState._initializeCamera');
     try {
-      final cameras = await availableCameras();
-      var _controller = CameraController(
-        cameras.first,
-        isAndroid ? ResolutionPreset.high : ResolutionPreset.medium,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.bgra8888,
-        fps: 25,
-      );
+      final _controller = await widget.cameraControllerBuilder.call();
       await _controller.initialize();
       await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
       await _controller.startImageStream(widget.onCameraIsStreaming);
@@ -93,10 +85,6 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCamera(context);
-  }
-
-  Widget _buildCamera(BuildContext context) {
     if (cameraController == null) {
       return const Center(child: CircularProgressIndicator());
     } else {

@@ -14,9 +14,11 @@ class BarcodeScannerPreview extends StatefulWidget {
   final List<DeviceOrientation> originalPreferredOrientations;
 
   final BarcodesWidgetBuilder? barcodesBuilder;
+  final CameraControllerBuilder cameraControllerBuilder;
 
   const BarcodeScannerPreview({
     super.key,
+    required this.cameraControllerBuilder,
     this.onCameraIsReady,
     this.onCameraIsStreaming,
     this.onBarcodesFound,
@@ -37,6 +39,7 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
   @override
   Widget build(BuildContext context) {
     return CameraPreviewWrapper(
+      cameraControllerBuilder: widget.cameraControllerBuilder,
       originalPreferredOrientations: widget.originalPreferredOrientations,
       onCameraIsReady: onCameraIsReady,
       onCameraIsStreaming: onCameraIsStreaming,

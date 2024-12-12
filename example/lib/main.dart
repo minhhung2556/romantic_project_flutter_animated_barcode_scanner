@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animated_qr_scanner/flutter_animated_qr_scanner.dart';
+import 'package:flutter_animated_barcode_scanner/flutter_animated_barcode_scanner.dart';
 
 const kPreferredOrientations = [
   DeviceOrientation.portraitUp,
@@ -65,6 +67,15 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
         //because in fullscreen mode, the preview size is larger than screen size.
         child: BarcodeScannerPreviewWrapper(
           barcodeScannerPreview: BarcodeScannerPreview(
+            cameraControllerBuilder: () async => CameraController(
+              (await availableCameras()).first,
+              Platform.isAndroid
+                  ? ResolutionPreset.high
+                  : ResolutionPreset.medium,
+              enableAudio: false,
+              imageFormatGroup: ImageFormatGroup.bgra8888,
+              fps: 25,
+            ),
             onCameraIsReady: (cameraController) => setState(() {
               this.cameraController = cameraController;
             }),
