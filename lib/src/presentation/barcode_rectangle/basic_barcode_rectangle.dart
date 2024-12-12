@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class BarcodeRectangle extends StatelessWidget {
+class BasicBarcodeRectangle extends StatelessWidget {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
   final double strokeWidth;
 
-  const BarcodeRectangle({
+  const BasicBarcodeRectangle({
     super.key,
     required this.cornerPoints,
     required this.imageSize,

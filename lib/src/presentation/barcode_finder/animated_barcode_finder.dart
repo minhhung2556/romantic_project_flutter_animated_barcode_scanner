@@ -9,12 +9,20 @@ import 'package:flutter/material.dart';
 /// [child] : is front of this, and inside the  finder rectangle.
 class AnimatedQRFinder extends StatelessWidget {
   final Widget? child;
+
   final double apertureEdge;
   final double viewFinderEdge;
+
   final Color borderColor;
   final double borderStrokeWidth;
+  final Duration borderAnimationDuration;
+  final Curve borderAnimationCurve;
+  final double borderAnimationDelta;
+
   final Color lineColor;
   final double lineStrokeWidth;
+  final Duration lineAnimationDuration;
+  final Curve lineAnimationCurve;
 
   const AnimatedQRFinder({
     super.key,
@@ -25,11 +33,16 @@ class AnimatedQRFinder extends StatelessWidget {
     this.borderStrokeWidth = 2,
     this.lineColor = Colors.white,
     this.lineStrokeWidth = 2,
+    this.lineAnimationDuration = const Duration(milliseconds: 1000),
+    this.lineAnimationCurve = Curves.easeInOutQuart,
+    this.borderAnimationDuration = const Duration(milliseconds: 300),
+    this.borderAnimationCurve = Curves.easeInOutQuart,
+    this.borderAnimationDelta = 5,
   });
 
   @override
   Widget build(BuildContext context) {
-    final qrFinderRectDimension =
+    final _qrFinderRectDimension =
         MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     return Stack(
       alignment: Alignment.center,
@@ -51,8 +64,8 @@ class AnimatedQRFinder extends StatelessWidget {
                   // add a mask for qr finder rectangle.
                   Center(
                     child: Container(
-                      width: qrFinderRectDimension,
-                      height: qrFinderRectDimension,
+                      width: _qrFinderRectDimension,
+                      height: _qrFinderRectDimension,
                       color: borderColor, // any color.
                     ),
                   ),
@@ -66,6 +79,9 @@ class AnimatedQRFinder extends StatelessWidget {
               lineStrokeWidth: lineStrokeWidth,
               borderColor: borderColor,
               borderStrokeWidth: borderStrokeWidth,
+              curve: borderAnimationCurve,
+              duration: borderAnimationDuration,
+              delta: borderAnimationDelta,
             ),
             if (child != null) child!,
           ],
@@ -76,6 +92,8 @@ class AnimatedQRFinder extends StatelessWidget {
             lineColor: lineColor,
             lineStrokeWidth: lineStrokeWidth,
             apertureEdge: apertureEdge,
+            duration: lineAnimationDuration,
+            curve: lineAnimationCurve,
           ),
         ),
       ],
@@ -87,11 +105,15 @@ class _AnimatedBarcodeScannerLine extends StatefulWidget {
   final Color lineColor;
   final double lineStrokeWidth;
   final double apertureEdge;
+  final Duration duration;
+  final Curve curve;
 
   const _AnimatedBarcodeScannerLine({
-    this.lineColor = Colors.white,
-    this.lineStrokeWidth = 2,
-    this.apertureEdge = 0,
+    required this.lineColor,
+    required this.lineStrokeWidth,
+    required this.apertureEdge,
+    required this.duration,
+    required this.curve,
   });
 
   @override
@@ -107,8 +129,7 @@ class _AnimatedBarcodeScannerLineState
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _controller = AnimationController(vsync: this, duration: widget.duration);
     _controller.addListener(() {
       setState(() {});
     });
@@ -132,7 +153,7 @@ class _AnimatedBarcodeScannerLineState
           0.0,
           h *
               Tween(begin: -0.5, end: 0.5)
-                  .chain(CurveTween(curve: Curves.easeInOutQuart))
+                  .chain(CurveTween(curve: widget.curve))
                   .evaluate(_controller)),
       child: Container(
         color: widget.lineColor,
@@ -150,14 +171,20 @@ class _AnimatedBarcodeScannerBorders extends StatefulWidget {
   final double borderStrokeWidth;
   final Color lineColor;
   final double lineStrokeWidth;
+  final Duration duration;
+  final double delta;
+  final Curve curve;
 
   const _AnimatedBarcodeScannerBorders({
-    this.apertureEdge = 0,
-    this.viewFinderEdge = 1,
-    this.borderColor = Colors.white,
-    this.borderStrokeWidth = 2,
-    this.lineColor = Colors.white,
-    this.lineStrokeWidth = 2,
+    required this.apertureEdge,
+    required this.viewFinderEdge,
+    required this.borderColor,
+    required this.borderStrokeWidth,
+    required this.lineColor,
+    required this.lineStrokeWidth,
+    required this.duration,
+    required this.delta,
+    required this.curve,
   });
 
   @override
@@ -173,8 +200,7 @@ class _AnimatedBarcodeScannerBordersState
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _controller = AnimationController(vsync: this, duration: widget.duration);
     _controller.addListener(() {
       setState(() {});
     });
@@ -189,10 +215,12 @@ class _AnimatedBarcodeScannerBordersState
 
   @override
   Widget build(BuildContext context) {
-    final qrFinderRectDimension =
+    final _qrFinderRectDimension =
         MediaQuery.of(context).size.shortestSide - widget.apertureEdge * 2;
-    final x = max(0.0, qrFinderRectDimension - widget.viewFinderEdge) +
-        Tween<double>(begin: -5, end: 5).evaluate(_controller);
+    final x = max(0.0, _qrFinderRectDimension - widget.viewFinderEdge) +
+        Tween<double>(begin: -widget.delta, end: widget.delta)
+            .chain(CurveTween(curve: widget.curve))
+            .evaluate(_controller);
     return Stack(
       children: [
         // top-right border

@@ -73,7 +73,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               return Stack(
                 children: barcodes
                     .map(
-                      (e) => BarcodeRectangle(
+                      (e) => BasicBarcodeRectangle(
                         cornerPoints: e.cornerPoints,
                         imageSize: e.imageSize,
                         color: Colors.deepOrange,
