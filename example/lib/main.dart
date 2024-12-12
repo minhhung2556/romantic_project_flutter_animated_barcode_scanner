@@ -76,7 +76,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
                       (e) => BasicBarcodeRectangle(
                         cornerPoints: e.cornerPoints,
                         imageSize: e.imageSize,
-                        color: Colors.deepOrange,
+                        color: Colors.green,
                         strokeWidth: 2,
                       ),
                     )
@@ -87,10 +87,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
           cameraController: cameraController,
           mode: mode,
           finderWidget: AnimatedQRFinder(
-            lineColor: Colors.green,
-            borderColor: Colors.greenAccent,
-            borderStrokeWidth: 2,
-            lineStrokeWidth: 1,
+            lineColor: Colors.lightGreen,
+            borderColor: Colors.lightGreenAccent,
+            borderStrokeWidth: 4,
+            lineStrokeWidth: 4,
           ),
         ),
       ),
