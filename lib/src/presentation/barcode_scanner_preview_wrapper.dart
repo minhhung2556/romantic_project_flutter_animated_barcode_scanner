@@ -23,9 +23,13 @@ class BarcodeScannerPreviewWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     if (cameraController?.value.isInitialized == true &&
         cameraController?.value.previewSize != null) {
+      final previewSize = cameraController!.value.previewSize!;
+      debugPrint(
+          'BarcodeScannerPreviewWrapper.build: previewSize=$previewSize');
+
       if (mode == BarcodeScannerPreviewMode.fitToPicture) {
         return SizedBox.fromSize(
-          size: cameraController!.value.previewSize!,
+          size: previewSize,
           child: Stack(
             children: [
               barcodeScannerPreview,
@@ -35,7 +39,12 @@ class BarcodeScannerPreviewWrapper extends StatelessWidget {
         );
       } else if (mode == BarcodeScannerPreviewMode.fullscreen) {
         // fullscreen.
+        final screenVerticalPadding = (Scaffold.of(context).appBarMaxHeight??0)+MediaQuery.of(context).padding.vertical;
         final screenSize = MediaQuery.of(context).size;
+        var scale = previewSize.longestSide / (screenSize.longestSide+screenVerticalPadding);
+        if (scale < 1) scale = 1 / scale;
+        debugPrint(
+            'BarcodeScannerPreviewWrapper.build: screenVerticalPadding=$screenVerticalPadding, screenSize=$screenSize, scale=$scale');
         return SizedBox.fromSize(
           size: screenSize,
           child: Stack(
@@ -46,8 +55,7 @@ class BarcodeScannerPreviewWrapper extends StatelessWidget {
                 child: ClipRect(
                   child: Transform.scale(
                     alignment: Alignment.topCenter,
-                    scale: cameraController!.value.previewSize!.longestSide /
-                        screenSize.longestSide,
+                    scale: scale,
                     child: barcodeScannerPreview,
                   ),
                 ),

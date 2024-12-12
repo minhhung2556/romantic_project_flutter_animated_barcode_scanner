@@ -51,7 +51,7 @@ class BarcodeProcessor {
 
   Future<List<BarcodeX>> _processImage(CameraImage image) async {
     try {
-      debugPrint('BarcodeProcessor._processImage: imageSize=${image.size}');
+      // debugPrint('BarcodeProcessor._processImage: imageSize=${image.size}');
       final inputImage = InputImage.fromBytes(
         bytes: image.imageBytes!,
         metadata: InputImageMetadata(
