@@ -6,7 +6,12 @@ import 'package:flutter/services.dart';
 
 import '../index.dart';
 
-/// if the image quality is medium then on android the [BarcodeScanner] can not recognize any qr codes.
+/// Wrapper of [CameraPreview] to show on screen easier.
+/// [child] : See [CameraPreview.child].
+/// [onCameraIsReady]
+/// [onCameraIsStreaming]
+/// [originalPreferredOrientations] : for the most popular UX of barcode scanner in every mobile app is in portrait mode. So this widget will force the app to portrait mode then re-apply the original orientation mode list of the main app.
+/// [cameraControllerBuilder] : to build the [CameraController].
 class CameraPreviewWrapper extends StatefulWidget {
   final Widget? child;
   final OnCameraIsReady onCameraIsReady;
@@ -14,6 +19,7 @@ class CameraPreviewWrapper extends StatefulWidget {
   final List<DeviceOrientation> originalPreferredOrientations;
   final CameraControllerBuilder cameraControllerBuilder;
 
+  /// Constructor.
   const CameraPreviewWrapper({
     super.key,
     this.child,
