@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 /// An common design of a barcode finder rectangle, including animation.
-class AnimatedQRFinder extends StatelessWidget {
+class AnimatedBarcodeFinder extends StatelessWidget {
   final Widget? child;
 
   final double apertureEdge;
@@ -34,7 +34,7 @@ class AnimatedQRFinder extends StatelessWidget {
   ///
   /// [lineColor], [lineStrokeWidth], [lineAnimationDuration], [lineAnimationCurve], [lineMargin] : used to draw the line in the center of the finder.
   /// [hasLine] : determine to draw the line. Default is true.
-  const AnimatedQRFinder({
+  const AnimatedBarcodeFinder({
     super.key,
     this.child,
     this.apertureEdge = 48.0,
@@ -53,7 +53,7 @@ class AnimatedQRFinder extends StatelessWidget {
   });
 
   /// Create an AnimatedQRFinder without animation.
-  const AnimatedQRFinder.static({
+  const AnimatedBarcodeFinder.static({
     super.key,
     this.child,
     this.apertureEdge = 48.0,
