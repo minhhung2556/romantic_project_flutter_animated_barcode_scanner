@@ -7,16 +7,19 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 
 import '../index.dart';
 
+/// Handles processing barcodes effectively.
 class BarcodeProcessor {
-  late BarcodeScanner barcodeScanner;
-
   Future<List<BarcodeX>>? _processing;
   CameraImage? _processingImage;
+  late BarcodeScanner barcodeScanner;
   final CameraController cameraController;
-
   final OnBarcodesFound onBarcodesFound;
   final OnFailedToProcessBarcode? onFailedToProcessBarcode;
 
+  /// Constructor.
+  /// [cameraController] : is used to get some required information to process an image.
+  /// [onBarcodesFound] : callback when some [BarcodeX] are found.
+  /// [onFailedToProcessBarcode] : callback when an error occurs.
   BarcodeProcessor({
     List<BarcodeFormat>? barcodeFormats,
     required this.cameraController,
@@ -30,25 +33,29 @@ class BarcodeProcessor {
 
   bool get _shouldProcess => _processingImage == null && _processing == null;
 
-  void onProcessingCompleted(List<BarcodeX> barcodes) {
+  /// Some [barcodes] were found.
+  void _onProcessingCompleted(List<BarcodeX> barcodes) {
     onBarcodesFound(barcodes);
     _processingImage = null;
     _processing = null;
   }
 
+  /// Releases all resources.
   Future<void> dispose() async {
     await barcodeScanner.close();
     _processingImage = null;
     _processing = null;
   }
 
+  /// Add an [image] to queue to process.
   void processImage(CameraImage image) {
     if (_shouldProcess) {
       _processing = _processImage(_processingImage = image)
-        ..then(onProcessingCompleted);
+        ..then(_onProcessingCompleted);
     }
   }
 
+  /// Start processing an [image].
   Future<List<BarcodeX>> _processImage(CameraImage image) async {
     try {
       // debugPrint('BarcodeProcessor._processImage: imageSize=${image.size}');
@@ -72,6 +79,7 @@ class BarcodeProcessor {
     return [];
   }
 
+  /// Process an [image] to find barcodes.
   Future<List<BarcodeX>> _processImageForBarcode(InputImage image) async {
     try {
       final res = await barcodeScanner.processImage(image);
