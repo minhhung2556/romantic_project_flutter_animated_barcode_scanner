@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => HomeScreen(),
         '/barcodeScanner': (context) => BarcodeScannerScreen(),
+        '/dummy': (context) => DummyScreen(),
       },
     );
   }
@@ -62,47 +63,57 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
             )
             .toList(growable: false),
       ),
-      body: SingleChildScrollView(
-        //because in fullscreen mode, the preview size is larger than screen size.
-        child: BarcodeScannerPreviewWrapper(
-          barcodeScannerPreview: BarcodeScannerPreview(
-            cameraControllerBuilder: () async => CameraController(
-              (await availableCameras()).first,
-              Platform.isAndroid
-                  ? ResolutionPreset.high
-                  : ResolutionPreset.medium,
-              enableAudio: false,
-              imageFormatGroup: ImageFormatGroup.bgra8888,
-              fps: 25,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            //because in fullscreen mode, the preview size is larger than screen size.
+            child: BarcodeScannerPreviewWrapper(
+              barcodeScannerPreview: BarcodeScannerPreview(
+                cameraControllerBuilder: () async => CameraController(
+                  (await availableCameras()).first,
+                  Platform.isAndroid
+                      ? ResolutionPreset.high
+                      : ResolutionPreset.medium,
+                  enableAudio: false,
+                  imageFormatGroup: ImageFormatGroup.bgra8888,
+                  fps: 25,
+                ),
+                originalPreferredOrientations: kPreferredOrientations,
+                barcodesBuilder: (context, barcodes) {
+                  return Stack(
+                    children: barcodes
+                        .map(
+                          (e) => BasicBarcodeRectangle(
+                            cornerPoints: e.cornerPoints,
+                            imageSize: e.imageSize,
+                            color: Colors.green,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        .toList(growable: false),
+                  );
+                },
+                onCameraIsReady: (controller) {},
+                onBarcodesFound: (barcodes) {},
+                onCameraIsStreaming: (image) {},
+                onFailedToProcessBarcode: (image, error, stace) {},
+              ),
+              mode: mode,
+              finderWidget: AnimatedBarcodeFinder(
+                lineColor: Colors.lightGreen,
+                borderColor: Colors.lightGreenAccent,
+                borderStrokeWidth: 4,
+                lineStrokeWidth: 4,
+              ),
             ),
-            originalPreferredOrientations: kPreferredOrientations,
-            barcodesBuilder: (context, barcodes) {
-              return Stack(
-                children: barcodes
-                    .map(
-                      (e) => BasicBarcodeRectangle(
-                        cornerPoints: e.cornerPoints,
-                        imageSize: e.imageSize,
-                        color: Colors.green,
-                        strokeWidth: 2,
-                      ),
-                    )
-                    .toList(growable: false),
-              );
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/dummy');
             },
-            onCameraIsReady: (controller) {},
-            onBarcodesFound: (barcodes) {},
-            onCameraIsStreaming: (image) {},
-            onFailedToProcessBarcode: (image, error, stace) {},
+            child: Text('Next'),
           ),
-          mode: mode,
-          finderWidget: AnimatedBarcodeFinder(
-            lineColor: Colors.lightGreen,
-            borderColor: Colors.lightGreenAccent,
-            borderStrokeWidth: 4,
-            lineStrokeWidth: 4,
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -138,6 +149,20 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class DummyScreen extends StatelessWidget {
+  const DummyScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('DummyScreen'),
+      ),
+      body: Placeholder(),
     );
   }
 }
