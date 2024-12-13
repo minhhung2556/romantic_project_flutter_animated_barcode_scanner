@@ -59,9 +59,7 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
       originalPreferredOrientations: widget.originalPreferredOrientations,
       onCameraIsReady: onCameraIsReady,
       onCameraIsStreaming: onCameraIsStreaming,
-      child: widget.barcodesBuilder != null
-          ? widget.barcodesBuilder!(context, barcodes)
-          : null,
+      child: widget.barcodesBuilder?.call(context, barcodes),
     );
   }
 
@@ -90,7 +88,7 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
     }
   }
 
-  void _initBarcodeProcessor(CameraController controller) async {
+  void _initBarcodeProcessor(CameraController controller) {
     barcodeProcessor = BarcodeProcessor(
       cameraController: controller,
       onBarcodesFound: onBarcodesFound,

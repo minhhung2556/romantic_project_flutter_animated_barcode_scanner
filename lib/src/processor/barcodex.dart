@@ -7,6 +7,7 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 class BarcodeX {
   /// [barcode] : that found when process the [CameraImage].
   final Barcode barcode;
+
   /// [imageSize] : that fits with device orientation and camera sensor orientation.
   final Size imageSize;
 
@@ -22,6 +23,7 @@ class BarcodeX {
   }
 
   /// List of [Barcode] corner points in [Offset].
-  List<Offset> get cornerPoints =>
-      barcode.cornerPoints.map((e) => Offset(e.x.toDouble(), e.y.toDouble())).toList(growable: false);
+  List<Offset> get cornerPoints => barcode.cornerPoints
+      .map((e) => Offset(e.x.toDouble(), e.y.toDouble()))
+      .toList(growable: false);
 }

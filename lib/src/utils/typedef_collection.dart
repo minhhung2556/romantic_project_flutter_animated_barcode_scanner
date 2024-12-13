@@ -26,12 +26,19 @@ typedef OnCameraIsStreaming = void Function(CameraImage image);
 /// - is [InputImage] when the [BarcodeScanner] was failed to process an [InputImage].
 /// [e] : error object.
 /// [s] : stack trace of this error.
-typedef OnFailedToProcessBarcode = void Function(dynamic image, Object? e, StackTrace? s);
+typedef OnFailedToProcessBarcode = void Function(
+  dynamic image,
+  Object? e,
+  StackTrace? s,
+);
 
 /// Build barcode rectangles.
 /// [context] : [BuildContext] of parent widget.
 /// [barcodes] : list of found barcodes.
-typedef BarcodesWidgetBuilder = Widget Function(BuildContext context, List<BarcodeX> barcodes);
+typedef BarcodesWidgetBuilder = Widget Function(
+  BuildContext context,
+  List<BarcodeX> barcodes,
+);
 
 /// Function to build a [CameraController].
 typedef CameraControllerBuilder = Future<CameraController> Function();

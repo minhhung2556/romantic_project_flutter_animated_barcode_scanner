@@ -31,7 +31,7 @@ class BarcodeScannerPreviewWrapper extends StatefulWidget {
 
 class _BarcodeScannerPreviewWrapperState
     extends State<BarcodeScannerPreviewWrapper> {
-  var previewSize = Size.zero;
+  Size previewSize = Size.zero;
 
   @override
   void initState() {
@@ -48,7 +48,8 @@ class _BarcodeScannerPreviewWrapperState
   Widget build(BuildContext context) {
     if (previewSize != Size.zero) {
       debugPrint(
-          'BarcodeScannerPreviewWrapper.build: previewSize=$previewSize');
+        'BarcodeScannerPreviewWrapper.build: previewSize=$previewSize',
+      );
 
       if (widget.mode == BarcodeScannerPreviewMode.fitToPicture) {
         return SizedBox.fromSize(
@@ -57,7 +58,7 @@ class _BarcodeScannerPreviewWrapperState
             children: [
               widget.barcodeScannerPreview,
               if (widget.finderWidget != null)
-                Center(child: widget.finderWidget!),
+                Center(child: widget.finderWidget),
             ],
           ),
         );
@@ -71,7 +72,8 @@ class _BarcodeScannerPreviewWrapperState
             (screenSize.longestSide + screenVerticalPadding);
         if (scale < 1) scale = 1 / scale;
         debugPrint(
-            'BarcodeScannerPreviewWrapper.build: screenVerticalPadding=$screenVerticalPadding, screenSize=$screenSize, scale=$scale');
+          'BarcodeScannerPreviewWrapper.build: screenVerticalPadding=$screenVerticalPadding, screenSize=$screenSize, scale=$scale',
+        );
         return SizedBox.fromSize(
           size: screenSize,
           child: Stack(
@@ -88,7 +90,7 @@ class _BarcodeScannerPreviewWrapperState
                 ),
               ),
               if (widget.finderWidget != null)
-                Center(child: widget.finderWidget!),
+                Center(child: widget.finderWidget),
             ],
           ),
         );
@@ -101,7 +103,7 @@ class _BarcodeScannerPreviewWrapperState
       child: Stack(
         children: [
           widget.barcodeScannerPreview,
-          if (widget.finderWidget != null) Center(child: widget.finderWidget!),
+          if (widget.finderWidget != null) Center(child: widget.finderWidget),
         ],
       ),
     );

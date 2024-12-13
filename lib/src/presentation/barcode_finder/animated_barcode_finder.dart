@@ -61,14 +61,14 @@ class AnimatedBarcodeFinder extends StatelessWidget {
     this.lineStrokeWidth = 2,
     this.lineMargin = const EdgeInsets.all(2),
     this.hasLine = true,
-  })  : this.lineAnimationDuration = Duration.zero,
-        this.lineAnimationCurve = Curves.linear,
-        this.borderAnimationDuration = Duration.zero,
-        this.borderAnimationCurve = Curves.linear;
+  })  : lineAnimationDuration = Duration.zero,
+        lineAnimationCurve = Curves.linear,
+        borderAnimationDuration = Duration.zero,
+        borderAnimationCurve = Curves.linear;
 
   @override
   Widget build(BuildContext context) {
-    final _qrFinderRectDimension =
+    final qrFinderRectDimension =
         MediaQuery.of(context).size.shortestSide - apertureEdge * 2;
     return Stack(
       alignment: Alignment.center,
@@ -78,20 +78,22 @@ class AnimatedBarcodeFinder extends StatelessWidget {
           children: [
             // background
             ColorFiltered(
-              colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcOut),
+              colorFilter:
+                  const ColorFilter.mode(Colors.black54, BlendMode.srcOut),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   Container(
                     decoration: const BoxDecoration(
-                        color: Colors.black,
-                        backgroundBlendMode: BlendMode.dstOut),
+                      color: Colors.black,
+                      backgroundBlendMode: BlendMode.dstOut,
+                    ),
                   ),
                   // add a mask for qr finder rectangle.
                   Center(
                     child: Container(
-                      width: _qrFinderRectDimension,
-                      height: _qrFinderRectDimension,
+                      width: qrFinderRectDimension,
+                      height: qrFinderRectDimension,
                       color: borderColor, // any color.
                     ),
                   ),
@@ -182,11 +184,12 @@ class _AnimatedBarcodeScannerLineState
         size.shortestSide - (widget.apertureEdge + widget.lineStrokeWidth) * 2;
     return Transform.translate(
       offset: ui.Offset(
-          0.0,
-          h *
-              Tween(begin: -0.5, end: 0.5)
-                  .chain(CurveTween(curve: widget.curve))
-                  .evaluate(_controller)),
+        0.0,
+        h *
+            Tween(begin: -0.5, end: 0.5)
+                .chain(CurveTween(curve: widget.curve))
+                .evaluate(_controller),
+      ),
       child: Container(
         color: widget.lineColor,
         width: double.infinity,
@@ -238,7 +241,7 @@ class _AnimatedBarcodeScannerBordersState
     });
     if (widget.duration > Duration.zero) {
       _controller.repeat(reverse: true);
-    }else{
+    } else {
       // if [AnimatedQRFinder] is static, then draw the border without adding [delta].
       _controller.value = 0.5;
     }
@@ -252,9 +255,9 @@ class _AnimatedBarcodeScannerBordersState
 
   @override
   Widget build(BuildContext context) {
-    final _qrFinderRectDimension =
+    final qrFinderRectDimension =
         MediaQuery.of(context).size.shortestSide - widget.apertureEdge * 2;
-    final x = max(0.0, _qrFinderRectDimension - widget.viewFinderEdge) +
+    final x = max(0.0, qrFinderRectDimension - widget.viewFinderEdge) +
         Tween<double>(begin: -widget.delta, end: widget.delta)
             .chain(CurveTween(curve: widget.curve))
             .evaluate(_controller);
@@ -268,9 +271,13 @@ class _AnimatedBarcodeScannerBordersState
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
                 right: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
               ),
             ),
             width: widget.viewFinderEdge,
@@ -285,9 +292,13 @@ class _AnimatedBarcodeScannerBordersState
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
                 left: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
               ),
             ),
             width: widget.viewFinderEdge,
@@ -302,9 +313,13 @@ class _AnimatedBarcodeScannerBordersState
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
                 right: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
               ),
             ),
             width: widget.viewFinderEdge,
@@ -319,9 +334,13 @@ class _AnimatedBarcodeScannerBordersState
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
                 left: BorderSide(
-                    color: widget.borderColor, width: widget.borderStrokeWidth),
+                  color: widget.borderColor,
+                  width: widget.borderStrokeWidth,
+                ),
               ),
             ),
             width: widget.viewFinderEdge,

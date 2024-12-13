@@ -64,7 +64,8 @@ class BarcodeProcessor {
         metadata: InputImageMetadata(
           size: image.size,
           rotation: InputImageRotationValue.fromRawValue(
-                  cameraController.description.sensorOrientation) ??
+                cameraController.description.sensorOrientation,
+              ) ??
               InputImageRotation.rotation0deg,
           format: image.inputImageFormat,
           bytesPerRow: image.planes[0].bytesPerRow,
@@ -73,7 +74,9 @@ class BarcodeProcessor {
       return await _processImageForBarcode(inputImage);
     } catch (e, s) {
       debugPrintStack(
-          stackTrace: s, label: 'BarcodeProcessor._processImage.error: $e');
+        stackTrace: s,
+        label: 'BarcodeProcessor._processImage.error: $e',
+      );
       onFailedToProcessBarcode?.call(image, e, s);
     }
     return [];
@@ -87,7 +90,8 @@ class BarcodeProcessor {
       if (res.isNotEmpty) {
         final imageSize = image.metadata!.size;
         debugPrint(
-            'BarcodeProcessor._processImageForBarcode.found: ${res.length} barcodes, imageSize=$imageSize');
+          'BarcodeProcessor._processImageForBarcode.found: ${res.length} barcodes, imageSize=$imageSize',
+        );
         late Size adaptedImageSize;
         // device is forced to portrait mode.
         if (imageSize.width > imageSize.height) {
@@ -102,8 +106,9 @@ class BarcodeProcessor {
       }
     } catch (e, s) {
       debugPrintStack(
-          stackTrace: s,
-          label: 'BarcodeProcessor._processImageForBarcode.error: $e');
+        stackTrace: s,
+        label: 'BarcodeProcessor._processImageForBarcode.error: $e',
+      );
       onFailedToProcessBarcode?.call(image, e, s);
     }
     return List.empty();

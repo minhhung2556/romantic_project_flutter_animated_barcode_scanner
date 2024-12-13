@@ -64,15 +64,16 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
   Future<CameraController?> _initializeCamera() async {
     debugPrint('_CameraPreviewWrapperState._initializeCamera');
     try {
-      final _controller = await widget.cameraControllerBuilder.call();
-      await _controller.initialize();
-      await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-      await _controller.startImageStream(widget.onCameraIsStreaming);
-      return _controller;
+      final controller = await widget.cameraControllerBuilder.call();
+      await controller.initialize();
+      await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+      await controller.startImageStream(widget.onCameraIsStreaming);
+      return controller;
     } catch (e, s) {
       debugPrintStack(
-          stackTrace: s,
-          label: '_CameraPreviewWrapperState._initializeCamera.error: $e');
+        stackTrace: s,
+        label: '_CameraPreviewWrapperState._initializeCamera.error: $e',
+      );
     }
     return null;
   }
@@ -82,9 +83,10 @@ class _CameraPreviewWrapperState extends State<CameraPreviewWrapper> {
       unawaited(cameraController?.dispose());
     } catch (e, s) {
       debugPrintStack(
-          stackTrace: s,
-          label:
-              '_CameraPreviewWrapperState._disposeCamera._controller.error: $e');
+        stackTrace: s,
+        label:
+            '_CameraPreviewWrapperState._disposeCamera._controller.error: $e',
+      );
     }
     cameraController = null;
   }
