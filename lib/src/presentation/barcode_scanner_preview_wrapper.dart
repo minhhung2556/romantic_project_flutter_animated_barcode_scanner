@@ -12,7 +12,7 @@ enum BarcodeScannerPreviewMode { fullscreen, fitToPicture, square }
 /// [mode] : See [BarcodeScannerPreview].
 /// [barcodeScannerPreview] : See [BarcodeScannerPreview].
 /// [finderWidget] : the barcode finder widget. See [AnimatedBarcodeFinder].
-class BarcodeScannerPreviewWrapper extends StatelessWidget {
+class BarcodeScannerPreviewWrapper extends StatefulWidget {
   final BarcodeScannerPreviewMode mode;
   final BarcodeScannerPreview barcodeScannerPreview;
   final Widget? finderWidget;
@@ -25,70 +25,85 @@ class BarcodeScannerPreviewWrapper extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: barcodeScannerPreview.cameraPreviewSizeNotifier,
-      builder: (context, child) {
-        final previewSize =
-            barcodeScannerPreview.cameraPreviewSizeNotifier.value;
-        if (previewSize != Size.zero) {
-          debugPrint(
-              'BarcodeScannerPreviewWrapper.build: previewSize=$previewSize');
+  State<BarcodeScannerPreviewWrapper> createState() =>
+      _BarcodeScannerPreviewWrapperState();
+}
 
-          if (mode == BarcodeScannerPreviewMode.fitToPicture) {
-            return SizedBox.fromSize(
-              size: previewSize,
-              child: Stack(
-                children: [
-                  barcodeScannerPreview,
-                  if (finderWidget != null) Center(child: finderWidget!),
-                ],
-              ),
-            );
-          } else if (mode == BarcodeScannerPreviewMode.fullscreen) {
-            // fullscreen.
-            final screenVerticalPadding =
-                (Scaffold.of(context).appBarMaxHeight ?? 0) +
-                    MediaQuery.of(context).padding.vertical;
-            final screenSize = MediaQuery.of(context).size;
-            var scale = previewSize.longestSide /
-                (screenSize.longestSide + screenVerticalPadding);
-            if (scale < 1) scale = 1 / scale;
-            debugPrint(
-                'BarcodeScannerPreviewWrapper.build: screenVerticalPadding=$screenVerticalPadding, screenSize=$screenSize, scale=$scale');
-            return SizedBox.fromSize(
-              size: screenSize,
-              child: Stack(
-                children: [
-                  SizedBox.fromSize(
-                    //size for ClipRect.
-                    size: screenSize,
-                    child: ClipRect(
-                      child: Transform.scale(
-                        alignment: Alignment.topCenter,
-                        scale: scale,
-                        child: barcodeScannerPreview,
-                      ),
-                    ),
-                  ),
-                  if (finderWidget != null) Center(child: finderWidget!),
-                ],
-              ),
-            );
-          }
-        }
-        // default.
-        final screenSize = MediaQuery.of(context).size;
-        return SizedBox.square(
-          dimension: screenSize.shortestSide,
+class _BarcodeScannerPreviewWrapperState
+    extends State<BarcodeScannerPreviewWrapper> {
+  var previewSize = Size.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.barcodeScannerPreview.cameraPreviewSizeNotifier.addListener(() {
+      setState(() {
+        previewSize =
+            widget.barcodeScannerPreview.cameraPreviewSizeNotifier.value;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (previewSize != Size.zero) {
+      debugPrint(
+          'BarcodeScannerPreviewWrapper.build: previewSize=$previewSize');
+
+      if (widget.mode == BarcodeScannerPreviewMode.fitToPicture) {
+        return SizedBox.fromSize(
+          size: previewSize,
           child: Stack(
             children: [
-              barcodeScannerPreview,
-              if (finderWidget != null) Center(child: finderWidget!),
+              widget.barcodeScannerPreview,
+              if (widget.finderWidget != null)
+                Center(child: widget.finderWidget!),
             ],
           ),
         );
-      },
+      } else if (widget.mode == BarcodeScannerPreviewMode.fullscreen) {
+        // fullscreen.
+        final screenVerticalPadding =
+            (Scaffold.of(context).appBarMaxHeight ?? 0) +
+                MediaQuery.of(context).padding.vertical;
+        final screenSize = MediaQuery.of(context).size;
+        var scale = previewSize.longestSide /
+            (screenSize.longestSide + screenVerticalPadding);
+        if (scale < 1) scale = 1 / scale;
+        debugPrint(
+            'BarcodeScannerPreviewWrapper.build: screenVerticalPadding=$screenVerticalPadding, screenSize=$screenSize, scale=$scale');
+        return SizedBox.fromSize(
+          size: screenSize,
+          child: Stack(
+            children: [
+              SizedBox.fromSize(
+                //size for ClipRect.
+                size: screenSize,
+                child: ClipRect(
+                  child: Transform.scale(
+                    alignment: Alignment.topCenter,
+                    scale: scale,
+                    child: widget.barcodeScannerPreview,
+                  ),
+                ),
+              ),
+              if (widget.finderWidget != null)
+                Center(child: widget.finderWidget!),
+            ],
+          ),
+        );
+      }
+    }
+    // default.
+    final screenSize = MediaQuery.of(context).size;
+    return SizedBox.square(
+      dimension: screenSize.shortestSide,
+      child: Stack(
+        children: [
+          widget.barcodeScannerPreview,
+          if (widget.finderWidget != null) Center(child: widget.finderWidget!),
+        ],
+      ),
     );
   }
 }
