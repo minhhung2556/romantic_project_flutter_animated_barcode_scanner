@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
+/// Some extension methods when handling [CameraImage].
 extension CameraImageX on CameraImage {
   Uint8List _getNv21Uint8List() {
     final width = this.width;
@@ -69,6 +70,8 @@ extension CameraImageX on CameraImage {
     return null;
   }
 
+  /// Get [Unit8List] image byte data.
+  /// This method also handles for issue [#145961](https://github.com/flutter/flutter/issues/145961) of google_ml_kit.
   Uint8List? get imageBytes {
     if (Platform.isAndroid && InputImageFormat.yuv420 == inputImageFormat) {
       return _getNv21Uint8List();
@@ -77,6 +80,7 @@ extension CameraImageX on CameraImage {
     }
   }
 
+  /// Get [InputImageFormat] of the input image.
   InputImageFormat get inputImageFormat {
     switch (format.group) {
       case ImageFormatGroup.bgra8888:
@@ -88,5 +92,6 @@ extension CameraImageX on CameraImage {
     }
   }
 
+  /// Get image [Size].
   Size get size => Size(width.toDouble(), height.toDouble());
 }
