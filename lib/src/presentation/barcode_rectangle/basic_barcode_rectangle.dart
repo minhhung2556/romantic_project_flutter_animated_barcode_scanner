@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// Draw a rectangle outside of a barcode.
+/// [cornerPoints] : corner points of the barcode on the image.
+/// [imageSize] : size/resolution of the image, not the widget size.
+/// [color] : color of rectangle.
+/// [strokeWidth] : stroke width of [Paint] to draw.
 class BasicBarcodeRectangle extends StatelessWidget {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
   final double strokeWidth;
 
+  /// Constructor.
   const BasicBarcodeRectangle({
     super.key,
     required this.cornerPoints,
@@ -18,7 +24,7 @@ class BasicBarcodeRectangle extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: imageSize,
-      painter: BarcodePainter(
+      painter: _BarcodePainter(
         cornerPoints: cornerPoints,
         imageSize: imageSize,
         color: color,
@@ -28,13 +34,14 @@ class BasicBarcodeRectangle extends StatelessWidget {
   }
 }
 
-class BarcodePainter extends CustomPainter {
+/// Paint the rectangle of the barcode.
+class _BarcodePainter extends CustomPainter {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
   final double strokeWidth;
 
-  BarcodePainter({
+  _BarcodePainter({
     required this.imageSize,
     required this.cornerPoints,
     required this.color,

@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../index.dart';
 
+/// Mode to show the [BarcodeScannerPreview].
+/// [fullscreen] : fit to the full screen size of the device.
+/// [fitToPicture] : fit to the picture/image size of the camera.
+/// [square] : square with dimension is the screen shortest side (screen width in portrait mode).
 enum BarcodeScannerPreviewMode { fullscreen, fitToPicture, square }
 
+/// The main widget of this package. This is a ready-to-use widget to show a barcode scanner.
+/// [mode] : See [BarcodeScannerPreview].
+/// [barcodeScannerPreview] : See [BarcodeScannerPreview].
+/// [finderWidget] : the barcode finder widget. See [AnimatedBarcodeFinder].
 class BarcodeScannerPreviewWrapper extends StatelessWidget {
   final BarcodeScannerPreviewMode mode;
   final BarcodeScannerPreview barcodeScannerPreview;

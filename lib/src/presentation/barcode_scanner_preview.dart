@@ -5,6 +5,21 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 
 import '../index.dart';
 
+/// NOTE:
+/// - If the image quality is medium then on android the [BarcodeScanner] can not recognize any qr codes.
+/// BarcodeScannerPreview helps in handling the barcode scanner widget:
+/// - Draw the [CameraPreview] using [CameraPreviewWrapper].
+/// - Use [BarcodeProcessor] to process the images from camera to find barcodes.
+/// - Notify to the consumer widget.
+/// [onCameraIsReady] : Callback when the camera is ready to use.
+/// [onCameraIsStreaming] : Callback when the camera is streaming the image of each frame.
+/// [onBarcodesFound] : Callback when some barcodes are found.
+/// [onFailedToProcessBarcode] : Callback when an error occurs during processing the image to find barcode.
+/// [originalPreferredOrientations] : See [CameraPreviewWrapper.originalPreferredOrientations].
+/// [cameraControllerBuilder] : See [CameraPreviewWrapper.cameraControllerBuilder].
+/// [barcodesBuilder] : Build barcode rectangles. See [BarcodesWidgetBuilder].
+/// [barcodeFormats] : List of [BarcodeFormat] that are supported to find in an image.
+/// [cameraPreviewSizeNotifier] : Is used to listen when it is able to get the image preview size of the camera.
 class BarcodeScannerPreview extends StatefulWidget {
   final OnCameraIsReady? onCameraIsReady;
   final OnCameraIsStreaming? onCameraIsStreaming;
