@@ -4,6 +4,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 /// An common design of a barcode finder rectangle, including animation.
+/// [child] : is front of this widget, and behind of the  finder rectangle.
+/// [apertureEdge] : margin of [CameraPreview] to the parent widget.
+/// [viewFinderEdge] : center of camera let the users places to the barcode picture, it is the length of white border lines.
+/// [borderColor], [borderStrokeWidth], [borderAnimationDuration], [borderAnimationDelta] : used to draw the border.
+/// [lineColor], [lineStrokeWidth], [lineAnimationDuration], [lineAnimationCurve], [lineMargin] : used to draw the line in the center of the finder.
+/// [hasLine] : determine to draw the line. Default is true.
 class AnimatedBarcodeFinder extends StatelessWidget {
   final Widget? child;
 
@@ -24,16 +30,6 @@ class AnimatedBarcodeFinder extends StatelessWidget {
   final Curve lineAnimationCurve;
 
   /// Constructor.
-  /// [child] : is front of this widget, and behind of the  finder rectangle.
-  ///
-  /// [apertureEdge] : margin of [CameraPreview] to the parent widget.
-  ///
-  /// [viewFinderEdge] : center of camera let the users places to the barcode picture, it is the length of white border lines.
-  ///
-  /// [borderColor], [borderStrokeWidth], [borderAnimationDuration], [borderAnimationDelta] : used to draw the border.
-  ///
-  /// [lineColor], [lineStrokeWidth], [lineAnimationDuration], [lineAnimationCurve], [lineMargin] : used to draw the line in the center of the finder.
-  /// [hasLine] : determine to draw the line. Default is true.
   const AnimatedBarcodeFinder({
     super.key,
     this.child,
