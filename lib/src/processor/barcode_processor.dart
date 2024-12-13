@@ -8,6 +8,9 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 import '../index.dart';
 
 /// Handles processing barcodes effectively.
+/// [cameraController] : is used to get some required information to process an image.
+/// [onBarcodesFound] : callback when some [BarcodeX] are found.
+/// [onFailedToProcessBarcode] : callback when an error occurs.
 class BarcodeProcessor {
   Future<List<BarcodeX>>? _processing;
   CameraImage? _processingImage;
@@ -17,9 +20,6 @@ class BarcodeProcessor {
   final OnFailedToProcessBarcode? onFailedToProcessBarcode;
 
   /// Constructor.
-  /// [cameraController] : is used to get some required information to process an image.
-  /// [onBarcodesFound] : callback when some [BarcodeX] are found.
-  /// [onFailedToProcessBarcode] : callback when an error occurs.
   BarcodeProcessor({
     List<BarcodeFormat>? barcodeFormats,
     required this.cameraController,
