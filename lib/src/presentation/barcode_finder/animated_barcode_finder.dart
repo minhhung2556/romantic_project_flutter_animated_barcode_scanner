@@ -3,10 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-/// [AnimatedQRFinder] : basic design for QR scanner.
-/// [apertureEdge] : margin of [CameraPreview] to the screen.
-/// [viewFinderEdge] : center of camera let the users places to the QR code picture, it is the length of white border lines.
-/// [child] : is front of this, and inside the  finder rectangle.
+/// An common design of a barcode finder rectangle, including animation.
 class AnimatedQRFinder extends StatelessWidget {
   final Widget? child;
 
@@ -19,11 +16,24 @@ class AnimatedQRFinder extends StatelessWidget {
   final Curve borderAnimationCurve;
   final double borderAnimationDelta;
 
+  final bool hasLine;
   final Color lineColor;
   final double lineStrokeWidth;
+  final EdgeInsets lineMargin;
   final Duration lineAnimationDuration;
   final Curve lineAnimationCurve;
 
+  /// Constructor.
+  /// [child] : is front of this widget, and behind of the  finder rectangle.
+  ///
+  /// [apertureEdge] : margin of [CameraPreview] to the parent widget.
+  ///
+  /// [viewFinderEdge] : center of camera let the users places to the barcode picture, it is the length of white border lines.
+  ///
+  /// [borderColor], [borderStrokeWidth], [borderAnimationDuration], [borderAnimationDelta] : used to draw the border.
+  ///
+  /// [lineColor], [lineStrokeWidth], [lineAnimationDuration], [lineAnimationCurve], [lineMargin] : used to draw the line in the center of the finder.
+  /// [hasLine] : determine to draw the line. Default is true.
   const AnimatedQRFinder({
     super.key,
     this.child,
@@ -31,14 +41,34 @@ class AnimatedQRFinder extends StatelessWidget {
     this.viewFinderEdge = 32.0,
     this.borderColor = Colors.white,
     this.borderStrokeWidth = 2,
+    this.borderAnimationDuration = const Duration(milliseconds: 300),
+    this.borderAnimationCurve = Curves.easeInOutQuart,
+    this.borderAnimationDelta = 5,
     this.lineColor = Colors.white,
     this.lineStrokeWidth = 2,
     this.lineAnimationDuration = const Duration(milliseconds: 1000),
     this.lineAnimationCurve = Curves.easeInOutQuart,
-    this.borderAnimationDuration = const Duration(milliseconds: 300),
-    this.borderAnimationCurve = Curves.easeInOutQuart,
-    this.borderAnimationDelta = 5,
+    this.lineMargin = const EdgeInsets.all(2),
+    this.hasLine = true,
   });
+
+  /// Create an AnimatedQRFinder without animation.
+  const AnimatedQRFinder.static({
+    super.key,
+    this.child,
+    this.apertureEdge = 48.0,
+    this.viewFinderEdge = 32.0,
+    this.borderColor = Colors.white,
+    this.borderStrokeWidth = 2,
+    this.borderAnimationDelta = 5,
+    this.lineColor = Colors.white,
+    this.lineStrokeWidth = 2,
+    this.lineMargin = const EdgeInsets.all(2),
+    this.hasLine = true,
+  })  : this.lineAnimationDuration = Duration.zero,
+        this.lineAnimationCurve = Curves.linear,
+        this.borderAnimationDuration = Duration.zero,
+        this.borderAnimationCurve = Curves.linear;
 
   @override
   Widget build(BuildContext context) {
@@ -86,16 +116,17 @@ class AnimatedQRFinder extends StatelessWidget {
             if (child != null) child!,
           ],
         ),
-        Padding(
-          padding: EdgeInsets.all(apertureEdge),
-          child: _AnimatedBarcodeScannerLine(
-            lineColor: lineColor,
-            lineStrokeWidth: lineStrokeWidth,
-            apertureEdge: apertureEdge,
-            duration: lineAnimationDuration,
-            curve: lineAnimationCurve,
+        if (hasLine)
+          Padding(
+            padding: EdgeInsets.all(apertureEdge) + lineMargin,
+            child: _AnimatedBarcodeScannerLine(
+              lineColor: lineColor,
+              lineStrokeWidth: lineStrokeWidth,
+              apertureEdge: apertureEdge,
+              duration: lineAnimationDuration,
+              curve: lineAnimationCurve,
+            ),
           ),
-        ),
       ],
     );
   }
@@ -133,7 +164,12 @@ class _AnimatedBarcodeScannerLineState
     _controller.addListener(() {
       setState(() {});
     });
-    _controller.repeat(reverse: true);
+    if (widget.duration > Duration.zero) {
+      _controller.repeat(reverse: true);
+    } else {
+      // if [AnimatedQRFinder] has no line, or is static, then draw the line in center of the finder.
+      _controller.value = 0.5;
+    }
   }
 
   @override
@@ -204,7 +240,12 @@ class _AnimatedBarcodeScannerBordersState
     _controller.addListener(() {
       setState(() {});
     });
-    _controller.repeat(reverse: true);
+    if (widget.duration > Duration.zero) {
+      _controller.repeat(reverse: true);
+    }else{
+      // if [AnimatedQRFinder] is static, then draw the border without adding [delta].
+      _controller.value = 0.5;
+    }
   }
 
   @override
