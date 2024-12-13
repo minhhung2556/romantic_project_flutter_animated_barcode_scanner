@@ -10,14 +10,14 @@ class BarcodeScannerPreview extends StatefulWidget {
   final OnCameraIsStreaming? onCameraIsStreaming;
   final OnBarcodesFoundCallback? onBarcodesFound;
   final OnFailedToDoSomething? onFailedToProcessBarcode;
-
   final List<DeviceOrientation> originalPreferredOrientations;
-
   final BarcodesWidgetBuilder? barcodesBuilder;
   final CameraControllerBuilder cameraControllerBuilder;
   final List<BarcodeFormat>? barcodeFormats;
 
-  const BarcodeScannerPreview({
+  final cameraPreviewSizeNotifier = ValueNotifier<Size>(Size.zero);
+
+  BarcodeScannerPreview({
     super.key,
     required this.cameraControllerBuilder,
     this.onCameraIsReady,
@@ -35,7 +35,6 @@ class BarcodeScannerPreview extends StatefulWidget {
 
 class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
   BarcodeProcessor? barcodeProcessor;
-  CameraController? cameraController;
   List<BarcodeX> barcodes = [];
 
   @override
@@ -52,8 +51,11 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
   }
 
   void onCameraIsReady(CameraController controller) {
-    this.cameraController = controller;
-    _initBarcodeProcessor();
+    if (controller.value.previewSize != null) {
+      widget.cameraPreviewSizeNotifier.value = controller.value.previewSize!;
+    }
+
+    _initBarcodeProcessor(controller);
     widget.onCameraIsReady?.call(controller);
   }
 
@@ -73,9 +75,9 @@ class _BarcodeScannerPreviewState extends State<BarcodeScannerPreview> {
     }
   }
 
-  void _initBarcodeProcessor() async {
+  void _initBarcodeProcessor(CameraController controller) async {
     barcodeProcessor = BarcodeProcessor(
-      cameraController: cameraController!,
+      cameraController: controller,
       onBarcodesFound: onBarcodesFound,
       barcodeFormats: widget.barcodeFormats,
       onFailedToProcessBarcode: widget.onFailedToProcessBarcode,
