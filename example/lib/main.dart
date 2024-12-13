@@ -96,7 +96,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
             onFailedToProcessBarcode: (image, error, stace) {},
           ),
           mode: mode,
-          finderWidget: AnimatedQRFinder(
+          finderWidget: AnimatedBarcodeFinder(
             lineColor: Colors.lightGreen,
             borderColor: Colors.lightGreenAccent,
             borderStrokeWidth: 4,
