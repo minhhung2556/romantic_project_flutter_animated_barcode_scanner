@@ -14,8 +14,8 @@ class BarcodeProcessor {
   CameraImage? _processingImage;
   final CameraController cameraController;
 
-  final OnBarcodesFoundCallback onBarcodesFound;
-  final OnFailedToDoSomething? onFailedToProcessBarcode;
+  final OnBarcodesFound onBarcodesFound;
+  final OnFailedToProcessBarcode? onFailedToProcessBarcode;
 
   BarcodeProcessor({
     List<BarcodeFormat>? barcodeFormats,
@@ -67,7 +67,7 @@ class BarcodeProcessor {
     } catch (e, s) {
       debugPrintStack(
           stackTrace: s, label: 'BarcodeProcessor._processImage.error: $e');
-      onFailedToProcessBarcode?.call(e, s);
+      onFailedToProcessBarcode?.call(image, e, s);
     }
     return [];
   }
@@ -96,7 +96,7 @@ class BarcodeProcessor {
       debugPrintStack(
           stackTrace: s,
           label: 'BarcodeProcessor._processImageForBarcode.error: $e');
-      onFailedToProcessBarcode?.call(e, s);
+      onFailedToProcessBarcode?.call(image, e, s);
     }
     return List.empty();
   }

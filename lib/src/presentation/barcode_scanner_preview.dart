@@ -8,8 +8,8 @@ import '../index.dart';
 class BarcodeScannerPreview extends StatefulWidget {
   final OnCameraIsReady? onCameraIsReady;
   final OnCameraIsStreaming? onCameraIsStreaming;
-  final OnBarcodesFoundCallback? onBarcodesFound;
-  final OnFailedToDoSomething? onFailedToProcessBarcode;
+  final OnBarcodesFound? onBarcodesFound;
+  final OnFailedToProcessBarcode? onFailedToProcessBarcode;
   final List<DeviceOrientation> originalPreferredOrientations;
   final BarcodesWidgetBuilder? barcodesBuilder;
   final CameraControllerBuilder cameraControllerBuilder;
