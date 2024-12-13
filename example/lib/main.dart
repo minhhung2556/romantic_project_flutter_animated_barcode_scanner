@@ -43,7 +43,6 @@ class BarcodeScannerScreen extends StatefulWidget {
 
 class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   BarcodeScannerPreviewMode mode = BarcodeScannerPreviewMode.square;
-  CameraController? cameraController;
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +75,6 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               imageFormatGroup: ImageFormatGroup.bgra8888,
               fps: 25,
             ),
-            onCameraIsReady: (cameraController) => setState(() {
-              this.cameraController = cameraController;
-            }),
             originalPreferredOrientations: kPreferredOrientations,
             barcodesBuilder: (context, barcodes) {
               return Stack(
@@ -94,8 +90,11 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
                     .toList(growable: false),
               );
             },
+            onCameraIsReady: (controller) {},
+            onBarcodesFound: (barcodes) {},
+            onCameraIsStreaming: (image) {},
+            onFailedToProcessBarcode: (image, error, stace) {},
           ),
-          cameraController: cameraController,
           mode: mode,
           finderWidget: AnimatedQRFinder(
             lineColor: Colors.lightGreen,
