@@ -1,53 +1,61 @@
 import 'package:flutter/material.dart';
 
-class BarcodeRectangle extends StatefulWidget {
+/// Draw a rectangle outside of a barcode.
+/// [cornerPoints] : corner points of the barcode on the image.
+/// [imageSize] : size/resolution of the image, not the widget size.
+/// [color] : color of rectangle.
+/// [strokeWidth] : stroke width of [Paint] to draw.
+class BasicBarcodeRectangle extends StatelessWidget {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
+  final double strokeWidth;
 
-  BarcodeRectangle({
+  /// Constructor.
+  const BasicBarcodeRectangle({
+    super.key,
     required this.cornerPoints,
     required this.imageSize,
     required this.color,
+    required this.strokeWidth,
   });
 
   @override
-  State<BarcodeRectangle> createState() => _BarcodeRectangleState();
-}
-
-class _BarcodeRectangleState extends State<BarcodeRectangle> {
-  @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      size: widget.imageSize,
-      painter: BarcodePainter(
-        cornerPoints: widget.cornerPoints,
-        imageSize: widget.imageSize,
-        color: widget.color,
+      size: imageSize,
+      painter: _BarcodePainter(
+        cornerPoints: cornerPoints,
+        imageSize: imageSize,
+        color: color,
+        strokeWidth: strokeWidth,
       ),
     );
   }
 }
 
-class BarcodePainter extends CustomPainter {
+/// Paint the rectangle of the barcode.
+class _BarcodePainter extends CustomPainter {
   final List<Offset> cornerPoints;
   final Size imageSize;
   final Color color;
+  final double strokeWidth;
 
-  BarcodePainter({
+  _BarcodePainter({
     required this.imageSize,
     required this.cornerPoints,
     required this.color,
+    required this.strokeWidth,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     //QR rect
-    double scaleX = size.width / imageSize.width;
-    double scaleY = size.height / imageSize.height;
+    final scaleX = size.width / imageSize.width;
+    final scaleY = size.height / imageSize.height;
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 3
+      ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
     final path = Path()
       ..moveTo(cornerPoints[0].dx * scaleX, cornerPoints[0].dy * scaleY)
@@ -60,6 +68,6 @@ class BarcodePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    return true; // for realtime update the rectangle.
   }
 }

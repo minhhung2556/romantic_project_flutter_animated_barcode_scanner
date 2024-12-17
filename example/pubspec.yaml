@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_animated_qr_scanner:
+  flutter_animated_barcode_scanner:
     path: ../
   camera: any
 
