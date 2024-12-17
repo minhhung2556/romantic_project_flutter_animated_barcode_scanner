@@ -1,5 +1,5 @@
 name: flutter_animated_barcode_scanner
-description: A Flutter package to create a QR Rectangle Detector for Google's ML Kit Barcode Scanning. It will be useful for your awesome app.
+description: This package simplifies adding barcode scanning to your app with an animated finder that guides users and highlights barcodes. It's a powerful tool to enhance your app!
 version: 1.0.0
 homepage: https://romanticdeveloper.com
 repository: https://github.com/minhhung2556/romantic_project_flutter_animated_barcode_scanner
