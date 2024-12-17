@@ -63,47 +63,50 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
             )
             .toList(growable: false),
       ),
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SingleChildScrollView(
-            //because in fullscreen mode, the preview size is larger than screen size.
-            child: BarcodeScannerPreviewWrapper(
-              barcodeScannerPreview: BarcodeScannerPreview(
-                cameraControllerBuilder: () async => CameraController(
-                  (await availableCameras()).first,
-                  Platform.isAndroid
-                      ? ResolutionPreset.high
-                      : ResolutionPreset.medium,
-                  enableAudio: false,
-                  imageFormatGroup: ImageFormatGroup.bgra8888,
-                  fps: 25,
+          Expanded(
+            child: SingleChildScrollView(
+              //because in fullscreen mode, the preview size is larger than screen size.
+              child: BarcodeScannerPreviewWrapper(
+                barcodeScannerPreview: BarcodeScannerPreview(
+                  cameraControllerBuilder: () async => CameraController(
+                    (await availableCameras()).first,
+                    Platform.isAndroid
+                        ? ResolutionPreset.high
+                        : ResolutionPreset.medium,
+                    enableAudio: false,
+                    imageFormatGroup: ImageFormatGroup.bgra8888,
+                    fps: 25,
+                  ),
+                  originalPreferredOrientations: kPreferredOrientations,
+                  barcodesBuilder: (context, barcodes) {
+                    return Stack(
+                      children: barcodes
+                          .map(
+                            (e) => BasicBarcodeRectangle(
+                              cornerPoints: e.cornerPoints,
+                              imageSize: e.imageSize,
+                              color: Colors.green,
+                              strokeWidth: 2,
+                            ),
+                          )
+                          .toList(growable: false),
+                    );
+                  },
+                  onCameraIsReady: (controller) {},
+                  onBarcodesFound: (barcodes) {},
+                  onCameraIsStreaming: (image) {},
+                  onFailedToProcessBarcode: (image, error, stace) {},
                 ),
-                originalPreferredOrientations: kPreferredOrientations,
-                barcodesBuilder: (context, barcodes) {
-                  return Stack(
-                    children: barcodes
-                        .map(
-                          (e) => BasicBarcodeRectangle(
-                            cornerPoints: e.cornerPoints,
-                            imageSize: e.imageSize,
-                            color: Colors.green,
-                            strokeWidth: 2,
-                          ),
-                        )
-                        .toList(growable: false),
-                  );
-                },
-                onCameraIsReady: (controller) {},
-                onBarcodesFound: (barcodes) {},
-                onCameraIsStreaming: (image) {},
-                onFailedToProcessBarcode: (image, error, stace) {},
-              ),
-              mode: mode,
-              finderWidget: AnimatedBarcodeFinder(
-                lineColor: Colors.lightGreen,
-                borderColor: Colors.lightGreenAccent,
-                borderStrokeWidth: 4,
-                lineStrokeWidth: 4,
+                mode: mode,
+                finderWidget: AnimatedBarcodeFinder(
+                  lineColor: Colors.lightGreen,
+                  borderColor: Colors.lightGreenAccent,
+                  borderStrokeWidth: 4,
+                  lineStrokeWidth: 4,
+                ),
               ),
             ),
           ),
