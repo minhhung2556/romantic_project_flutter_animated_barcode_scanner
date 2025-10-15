@@ -3,14 +3,19 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-/// An common design of a barcode finder rectangle, including animation.
-/// [child] : is front of this widget, and behind of the  finder rectangle.
-/// [apertureEdge] : margin of [CameraPreview] to the parent widget.
-/// [viewFinderEdge] : center of camera let the users places to the barcode picture, it is the length of white border lines.
-/// [borderColor], [borderStrokeWidth], [borderAnimationDuration], [borderAnimationDelta] : used to draw the border.
-/// [lineColor], [lineStrokeWidth], [lineAnimationDuration], [lineAnimationCurve], [lineMargin] : used to draw the line in the center of the finder.
-/// [hasLine] : determine to draw the line. Default is true.
+/// A widget that displays a barcode finder with an animated border and a
+/// scanning line.
+///
+/// This widget creates a square viewfinder area with a semi-transparent overlay
+/// on the rest of the screen. It includes animated corner borders and an
+/// optional animated line that sweeps across the viewfinder.
+///
+/// Use the [AnimatedBarcodeFinder.static] constructor to create a finder
+/// without animations.
 class AnimatedBarcodeFinder extends StatelessWidget {
+  /// An optional widget to display on top of the finder overlay.
+  ///
+  /// This widget is placed behind the viewfinder rectangle but in front of the camera preview.
   final Widget? child;
 
   final double apertureEdge;

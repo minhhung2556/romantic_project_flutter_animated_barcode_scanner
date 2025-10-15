@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ import '../index.dart';
 /// [cameraController] : is used to get some required information to process an image.
 /// [onBarcodesFound] : callback when some [BarcodeX] are found.
 /// [onFailedToProcessBarcode] : callback when an error occurs.
+/// [inputImageFormat] : if null, default settings will be used, brga88888 on iOS and NV21 on Android. On some Android devices, brga8888 is used.
 class BarcodeProcessor {
   Future<List<BarcodeX>>? _processing;
   CameraImage? _processingImage;
@@ -18,6 +20,7 @@ class BarcodeProcessor {
   final CameraController cameraController;
   final OnBarcodesFound onBarcodesFound;
   final OnFailedToProcessBarcode? onFailedToProcessBarcode;
+  final InputImageFormat? inputImageFormat;
 
   /// Constructor.
   BarcodeProcessor({
@@ -25,6 +28,7 @@ class BarcodeProcessor {
     required this.cameraController,
     required this.onBarcodesFound,
     this.onFailedToProcessBarcode,
+    this.inputImageFormat,
   }) {
     barcodeScanner = barcodeFormats == null
         ? BarcodeScanner()
@@ -59,15 +63,32 @@ class BarcodeProcessor {
   Future<List<BarcodeX>> _processImage(CameraImage image) async {
     try {
       // debugPrint('BarcodeProcessor._processImage: imageSize=${image.size}');
+      late InputImageFormat format;
+      late Uint8List? bytes;
+      if (Platform.isIOS) {
+        // Default format on iOS is bgra8888;
+        format = InputImageFormat.bgra8888;
+        bytes = image.getOriginalImageBytes;
+      } else {
+        // For better performance and wider supports, mkkit recommends to use nv21. See details: https://developers.google.com/ml-kit/vision/barcode-scanning/android#performance-tips
+        if (inputImageFormat == null ||
+            inputImageFormat == InputImageFormat.nv21) {
+          format = InputImageFormat.nv21;
+          bytes = image.getOriginalImageBytes;
+        } else {
+          format = inputImageFormat!;
+          bytes = image.getNv21ImageBytes;
+        }
+      }
       final inputImage = InputImage.fromBytes(
-        bytes: image.imageBytes!,
+        bytes: bytes,
         metadata: InputImageMetadata(
           size: image.size,
           rotation: InputImageRotationValue.fromRawValue(
                 cameraController.description.sensorOrientation,
               ) ??
               InputImageRotation.rotation0deg,
-          format: image.inputImageFormat,
+          format: format,
           bytesPerRow: image.planes[0].bytesPerRow,
         ),
       );
