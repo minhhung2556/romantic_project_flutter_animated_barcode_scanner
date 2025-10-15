@@ -19,60 +19,13 @@ More packages by [Romantic Developer](https://pub.dev/publishers/romanticdevelop
 
 See full implementation in the [example](https://github.com/minhhung2556/romantic_project_flutter_animated_barcode_scanner/tree/master/example) project.
 
-```dart
-BarcodeScannerPreviewWrapper(
-    barcodeScannerPreview: BarcodeScannerPreview(
-      cameraControllerBuilder: () async => CameraController(
-        (await availableCameras()).first,
-        Platform.isAndroid
-            ? ResolutionPreset.high
-            : ResolutionPreset.medium,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.bgra8888,
-        fps: 25,
-      ),
-      originalPreferredOrientations: [
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.landscapeLeft,
-      ],
-      barcodesBuilder: (context, barcodes) {
-        return Stack(
-          children: barcodes
-              .map(
-                (e) => BasicBarcodeRectangle(
-                  cornerPoints: e.cornerPoints,
-                  imageSize: e.imageSize,
-                  color: Colors.green,
-                  strokeWidth: 2,
-                ),
-              )
-              .toList(growable: false),
-        );
-      },
-      onCameraIsReady: (controller) {},
-      onBarcodesFound: (barcodes) {},
-      onCameraIsStreaming: (image) {},
-      onFailedToProcessBarcode: (image, error, stace) {},
-    ),
-    mode: BarcodeScannerPreviewMode.square,
-    finderWidget: AnimatedBarcodeFinder(
-      lineColor: Colors.lightGreen,
-      borderColor: Colors.lightGreenAccent,
-      borderStrokeWidth: 4,
-      lineStrokeWidth: 4,
-    ),
-  ),
-)
-```
-
 ## Development Environment
 
 ```
-[!] Flutter (Channel stable, 3.24.3, on Microsoft Windows [Version 10.0.19045.5131], locale en-US)
-    • Flutter version 3.24.3 on channel stable at C:\Users\admin\fvm\default
-    • Upstream repository https://github.com/flutter/flutter.git
-    • Framework revision 2663184aa7 (3 months ago), 2024-09-11 16:27:48 -0500
-    • Engine revision 36335019a8
-    • Dart version 3.5.3
-    • DevTools version 2.37.3
+[✓] Flutter (Channel stable, 3.35.6, on macOS 26.0 25A354 darwin-arm64, locale en-VN)
+[✓] Android toolchain - develop for Android devices (Android SDK version 36.0.0)
+[✓] Xcode - develop for iOS and macOS (Xcode 16.4)
+[✓] Chrome - develop for the web
+[✓] Android Studio (version 2025.1)
+[✓] VS Code (version 1.104.3)
 ```
