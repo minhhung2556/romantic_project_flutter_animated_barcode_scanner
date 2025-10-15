@@ -5,22 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_barcode_scanner/flutter_animated_barcode_scanner.dart';
 
+/// The preferred orientations for this app.
 const kPreferredOrientations = [
   DeviceOrientation.portraitUp,
   DeviceOrientation.landscapeLeft,
 ];
 
+/// The main entry point of the application.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(kPreferredOrientations);
   runApp(MyApp());
 }
 
+/// The root widget of the application.
 class MyApp extends StatelessWidget {
+  /// Creates the root application widget.
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // The [kCameraPreviewRouteObserver] is used to stop/start the camera
+    // when the route changes.
     return MaterialApp(
       title: 'Example',
       theme: ThemeData.from(
@@ -31,11 +37,14 @@ class MyApp extends StatelessWidget {
         '/barcodeScanner': (context) => BarcodeScannerScreen(),
         '/dummy': (context) => DummyScreen(),
       },
+      navigatorObservers: [kCameraPreviewRouteObserver],
     );
   }
 }
 
+/// A screen that displays a barcode scanner.
 class BarcodeScannerScreen extends StatefulWidget {
+  /// Creates a [BarcodeScannerScreen].
   const BarcodeScannerScreen({super.key});
 
   @override
@@ -44,6 +53,7 @@ class BarcodeScannerScreen extends StatefulWidget {
 
 class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   BarcodeScannerPreviewMode mode = BarcodeScannerPreviewMode.square;
+  bool animatingFinder = false;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +61,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       appBar: AppBar(
         title: Text('Barcode Scanner'),
         actions: BarcodeScannerPreviewMode.values
-            .map(
+            .map<Widget>(
               (e) => TextButton(
                 child: Text(e.name),
                 onPressed: () {
@@ -61,51 +71,59 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
                 },
               ),
             )
-            .toList(growable: false),
+            .toList(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          CheckboxMenuButton(
+            value: animatingFinder,
+            onChanged: (e) {
+              setState(() {
+                animatingFinder = e ?? false;
+              });
+            }, child: Text('AnimatingFinder'),
+          ),
           Expanded(
-            child: SingleChildScrollView(
-              //because in fullscreen mode, the preview size is larger than screen size.
-              child: BarcodeScannerPreviewWrapper(
-                barcodeScannerPreview: BarcodeScannerPreview(
-                  cameraControllerBuilder: () async => CameraController(
-                    (await availableCameras()).first,
-                    Platform.isAndroid
-                        ? ResolutionPreset.high
-                        : ResolutionPreset.medium,
-                    enableAudio: false,
-                    imageFormatGroup: ImageFormatGroup.bgra8888,
-                    fps: 25,
-                  ),
-                  originalPreferredOrientations: kPreferredOrientations,
-                  barcodesBuilder: (context, barcodes) {
-                    return Stack(
-                      children: barcodes
-                          .map(
-                            (e) => BasicBarcodeRectangle(
-                              cornerPoints: e.cornerPoints,
-                              imageSize: e.imageSize,
-                              color: Colors.green,
-                              strokeWidth: 2,
-                            ),
-                          )
-                          .toList(growable: false),
-                    );
-                  },
-                  onCameraIsReady: (controller) {},
-                  onBarcodesFound: (barcodes) {},
-                  onCameraIsStreaming: (image) {},
-                  onFailedToProcessBarcode: (image, error, stace) {},
-                ),
-                mode: mode,
-                finderWidget: AnimatedBarcodeFinder(
-                  lineColor: Colors.lightGreen,
-                  borderColor: Colors.lightGreenAccent,
-                  borderStrokeWidth: 4,
-                  lineStrokeWidth: 4,
+            child: BarcodeScannerPreviewWrapper(
+              barcodeScannerPreview: BarcodeScannerPreview(
+                originalPreferredOrientations: kPreferredOrientations,
+                barcodesBuilder: (context, barcodes) {
+                  return Stack(
+                    children: barcodes
+                        .map(
+                          (e) => BasicBarcodeRectangle(
+                            cornerPoints: e.cornerPoints,
+                            imageSize: e.imageSize,
+                            color: Colors.green,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        .toList(growable: false),
+                  );
+                },
+                // All the callbacks below are optional.
+                // You can safely remove them if you don't need them.
+                onCameraIsReady: (controller) {},
+                onBarcodesFound: (barcodes) {},
+                onCameraIsStreaming: (image) {},
+                onFailedToProcessBarcode: (image, error, stace) {},
+              ),
+              mode: mode,
+              finderWidget: animatingFinder == true
+                  ? AnimatedBarcodeFinder()
+                  : AnimatedBarcodeFinder.static(
+                      hasLine: false,
+                      child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 32),
+                    Text(
+                      "Scan any barcodes",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -122,7 +140,9 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   }
 }
 
+/// The home screen of the example application.
 class HomeScreen extends StatelessWidget {
+  /// Creates a [HomeScreen].
   const HomeScreen({super.key});
 
   @override
@@ -156,7 +176,9 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+/// A dummy screen to demonstrate navigation from the barcode scanner screen.
 class DummyScreen extends StatelessWidget {
+  /// Creates a [DummyScreen].
   const DummyScreen({super.key});
 
   @override
