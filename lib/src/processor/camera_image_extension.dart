@@ -1,13 +1,17 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
 /// Some extension methods when handling [CameraImage].
 extension CameraImageX on CameraImage {
-  Uint8List _getNv21Uint8List() {
+  /// Converts the [CameraImage] to a `Uint8List` in NV21 format.
+  ///
+  /// On Android, the camera image is typically in YUV_420_888 or some cases in BGRA_8888 format, which
+  /// can be represented as NV21. This method combines the Y, U, and V planes
+  /// into a single byte array with YYYYVU packaging. This is useful for
+  ///  image processing libraries that expect this format.
+  Uint8List get getNv21ImageBytes {
     final width = this.width;
     final height = this.height;
 
@@ -56,7 +60,11 @@ extension CameraImageX on CameraImage {
     return Uint8List.fromList(nv21);
   }
 
-  Uint8List? get _getNormalImageBytes {
+  /// Concatenates the bytes of all planes in the [CameraImage] into a single `Uint8List`.
+  ///
+  /// This is a straightforward concatenation and might not represent a standard
+  /// image format. It's useful for debugging or when a raw byte stream is needed.
+  Uint8List get getOriginalImageBytes {
     final allBytes = WriteBuffer();
     try {
       for (final plane in planes) {
@@ -67,29 +75,7 @@ extension CameraImageX on CameraImage {
     } catch (e) {
       debugPrint('CameraImageX.bytes.error: $e');
     }
-    return null;
-  }
-
-  /// Get [Unit8List] image byte data.
-  /// This method also handles for issue [#145961](https://github.com/flutter/flutter/issues/145961) of google_ml_kit.
-  Uint8List? get imageBytes {
-    if (Platform.isAndroid && InputImageFormat.yuv420 == inputImageFormat) {
-      return _getNv21Uint8List();
-    } else {
-      return _getNormalImageBytes;
-    }
-  }
-
-  /// Get [InputImageFormat] of the input image.
-  InputImageFormat get inputImageFormat {
-    switch (format.group) {
-      case ImageFormatGroup.bgra8888:
-        return InputImageFormat.bgra8888;
-      case ImageFormatGroup.yuv420:
-      case ImageFormatGroup.nv21:
-      default:
-        return InputImageFormat.nv21;
-    }
+    return Uint8List(0);
   }
 
   /// Get image [Size].

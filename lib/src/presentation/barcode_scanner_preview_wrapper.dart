@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../index.dart';
 
-/// Mode to show the [BarcodeScannerPreview].
-/// [fullscreen] : fit to the full screen size of the device.
-/// [fitToPicture] : fit to the picture/image size of the camera.
-/// [square] : square with dimension is the screen shortest side (screen width in portrait mode).
+/// Determines how the [BarcodeScannerPreview] is displayed within the [BarcodeScannerPreviewWrapper].
 enum BarcodeScannerPreviewMode { fullscreen, fitToPicture, square }
 
 /// The main widget of this package. This is a ready-to-use widget to show a barcode scanner.
-/// [mode] : See [BarcodeScannerPreview].
-/// [barcodeScannerPreview] : See [BarcodeScannerPreview].
-/// [finderWidget] : the barcode finder widget. See [AnimatedBarcodeFinder].
+///
+/// This widget wraps the [BarcodeScannerPreview] and provides different layout modes.
+///
+/// Use [mode] to specify the layout mode. See [BarcodeScannerPreviewMode] for options:
+/// - [BarcodeScannerPreviewMode.square] (default): A square view finder.
+/// - [BarcodeScannerPreviewMode.fullscreen]: A full-screen view finder.
+/// - [BarcodeScannerPreviewMode.fitToPicture]: The view finder fits the camera's picture size.
 class BarcodeScannerPreviewWrapper extends StatefulWidget {
   final BarcodeScannerPreviewMode mode;
   final BarcodeScannerPreview barcodeScannerPreview;
@@ -97,13 +98,23 @@ class _BarcodeScannerPreviewWrapperState
       }
     }
     // default.
-    final screenSize = MediaQuery.of(context).size;
+    final dimension = context.findRenderObject()?.paintBounds.shortestSide ??
+        MediaQuery.of(context).size.shortestSide;
     return SizedBox.square(
-      dimension: screenSize.shortestSide,
+      dimension: dimension,
       child: Stack(
         children: [
-          widget.barcodeScannerPreview,
-          if (widget.finderWidget != null) Center(child: widget.finderWidget),
+          SizedBox.square(
+            dimension: dimension,
+            child: ClipRect(
+              child: Stack(
+                children: [
+                  widget.barcodeScannerPreview,
+                  if (widget.finderWidget != null) Center(child: widget.finderWidget),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
